@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Quizzes - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Quizzes</h1>
+        <p>Take a quiz to test your knowledge.</p>
+    </div>
+</div>
+<div class="row">
+    {% for quiz in quizzes %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ quiz.title }}</h5>
+                    <p class="card-text">{{ quiz.description|default:'No description provided.' }}</p>
+                    <p class="text-muted">Module: {{ quiz.module.title }}</p>
+                    <a class="btn btn-primary" href="{% url 'quiz_detail' quiz.pk %}">Start Quiz</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p>No quizzes are available.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Assignments - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Assignments</h1>
+        <p>Submit your assignments for grading.</p>
+    </div>
+</div>
+<div class="row">
+    {% for assignment in assignments %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ assignment.title }}</h5>
+                    <p class="card-text">{{ assignment.description|truncatewords:25 }}</p>
+                    <p class="mb-2"><strong>Course:</strong> {{ assignment.course.title }}</p>
+                    <p class="mb-2"><strong>Due:</strong> {{ assignment.due_date|date:'M d, Y H:i' }}</p>
+                    <a class="btn btn-primary" href="{% url 'assignment_submit' assignment.pk %}">Submit</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p>No assignments are available.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+
+from .models import CustomUser, UserProfile
+
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'first_name', 'last_name', 'role']
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'avatar']

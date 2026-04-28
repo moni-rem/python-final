@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Create Assignment - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">Create Assignment</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Create Assignment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

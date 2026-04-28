@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Submit Assignment - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Submit Assignment</h2>
+                <h5>{{ assignment.title }}</h5>
+                <p class="text-muted">Course: {{ assignment.course.title }}</p>
+                <p>{{ assignment.description }}</p>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="text_submission" class="form-label">Text Submission</label>
+                        <textarea class="form-control" id="text_submission" name="text_submission" rows="5">{{ submission.text_submission|default:'' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload File</label>
+                        <input class="form-control" type="file" id="file" name="file">
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Submission</button>
+                </form>
+                {% if submission %}
+                    <div class="mt-4">
+                        <h6>Last submission</h6>
+                        <p>Submitted at {{ submission.submitted_at|date:'M d, Y H:i' }}</p>
+                        {% if submission.grade %}
+                            <p><strong>Grade:</strong> {{ submission.grade }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

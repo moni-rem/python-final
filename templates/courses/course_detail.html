@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }} - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h1 class="card-title">{{ course.title }}</h1>
+                <p class="text-muted">Category: {{ course.category.name }} • Instructor: {{ course.instructor.username }}</p>
+                <p>{{ course.description }}</p>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="badge bg-info text-dark">${{ course.price }}</span>
+                    {% if enrolled %}
+                        <span class="badge bg-success">Enrolled</span>
+                    {% else %}
+                        <a href="{% url 'enroll_course' course.pk %}" class="btn btn-success">Enroll Now</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5>Course Info</h5>
+                <p><strong>Created At:</strong> {{ course.created_at|date:'M d, Y' }}</p>
+                <p><strong>Updated At:</strong> {{ course.updated_at|date:'M d, Y' }}</p>
+                <p><strong>Enrollments:</strong> {{ course.enrollments.count }}</p>
+                {% if user.is_authenticated and user == course.instructor %}
+                    <a href="{% url 'create_module' %}" class="btn btn-primary btn-sm mt-3">Add Module</a>
+                    <a href="{% url 'create_lesson' %}" class="btn btn-secondary btn-sm mt-3">Add Lesson</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Course Modules</h5>
+                {% if course.modules.all %}
+                    <ul class="list-group list-group-flush">
+                        {% for module in course.modules.all %}
+                            <li class="list-group-item">
+                                <a href="{% url 'module_detail' module.pk %}" class="text-decoration-none">{{ module.title }}</a>
+                                <div><small class="text-muted">Order {{ module.order }}</small></div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="mb-0">No modules have been added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

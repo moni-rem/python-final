@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h1 class="display-5">Admin Dashboard</h1>
+                <p class="lead">Manage users, courses, and platform activity from one place.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Total Users</h6>
+                <h2>{{ user_count }}</h2>
+                <p class="mb-0">Registered users on the platform.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Total Courses</h6>
+                <h2>{{ course_count }}</h2>
+                <p class="mb-0">Courses available for learners.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Total Enrollments</h6>
+                <h2>{{ enrollment_count }}</h2>
+                <p class="mb-0">All student enrollments.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Admin Actions</h5>
+                <p>You can manage users and course content using the built-in Django admin panel.</p>
+                <a class="btn btn-primary" href="/admin/">Open Django Admin</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

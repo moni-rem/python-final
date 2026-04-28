@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Course Catalog - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row mb-5">
+    <div class="col-lg-8">
+        <h1 class="display-5">Course Catalog</h1>
+        <p class="lead">Explore our full course library and find the learning path that's right for you.</p>
+    </div>
+    <div class="col-lg-4 text-lg-end align-self-center">
+        <a class="btn btn-outline-secondary" href="{% url 'home' %}">Back to Home</a>
+    </div>
+</div>
+<div class="row">
+    {% for course in courses %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text text-truncate">{{ course.description|truncatewords:22 }}</p>
+                    <p class="mb-1"><small class="text-muted">Category: {{ course.category.name }}</small></p>
+                    <p class="mb-3"><small class="text-muted">Instructor: {{ course.instructor.username }}</small></p>
+                    <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary">View Course</a>
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    <span class="badge bg-info text-dark">${{ course.price }}</span>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-secondary">No courses are available yet.</div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

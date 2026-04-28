@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Student Progress - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">Student Progress</h3>
+                {% if progress_entries %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Completed Lessons</th>
+                                    <th>Last Accessed</th>
+                                    <th>Completed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for progress in progress_entries %}
+                                    <tr>
+                                        <td>{{ progress.student.username }}</td>
+                                        <td>{{ progress.course.title }}</td>
+                                        <td>{{ progress.completed_lessons.count }}</td>
+                                        <td>{{ progress.last_accessed|date:'M d, Y H:i' }}</td>
+                                        <td>{% if progress.is_completed %}Yes{% else %}No{% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="mb-0">No progress entries found for your courses.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

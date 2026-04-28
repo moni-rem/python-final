@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Register - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-xl-5 col-lg-6 col-md-8">
+        <div class="register-card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="register-card-header text-center text-white py-5" style="background: linear-gradient(120deg, #4f46e5, #0ea5e9);">
+                <h1 class="h3 mb-2">Join E-Learn</h1>
+                <p class="mb-0 opacity-75">Create your account and start learning today.</p>
+            </div>
+            <div class="card-body p-5 bg-white">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger mb-4">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                <form method="post" class="register-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="alert alert-info small mt-3 mb-4">
+                        Choose a strong password with letters, numbers, and symbols.
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">Create Account</button>
+                </form>
+                <div class="text-center mt-4">
+                    <span class="text-muted">Already have an account?</span>
+                    <a href="{% url 'login' %}" class="text-primary fw-semibold">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

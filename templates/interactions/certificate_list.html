@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Certificates - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1>Certificates</h1>
+        <p>View certificates you have earned from completed courses.</p>
+    </div>
+</div>
+<div class="row">
+    {% if certificates %}
+        {% for certificate in certificates %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ certificate.course.title }}</h5>
+                        <p class="card-text">Issued on {{ certificate.issued_at|date:'M d, Y' }}</p>
+                        {% if certificate.certificate_url %}
+                            <a href="{{ certificate.certificate_url }}" class="btn btn-primary" target="_blank">View Certificate</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-secondary">You haven't earned any certificates yet.</div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

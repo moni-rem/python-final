@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}My Progress - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1>Learning Progress</h1>
+        <p>Track your courses and completed lessons.</p>
+    </div>
+</div>
+<div class="row">
+    {% if progress_entries %}
+        {% for progress in progress_entries %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ progress.course.title }}</h5>
+                        <p><strong>Completed Lessons:</strong> {{ progress.completed_lessons.count }}</p>
+                        <p><strong>Completed:</strong> {{ progress.is_completed|yesno:'Yes,No' }}</p>
+                        <p><strong>Last Accessed:</strong> {{ progress.last_accessed|date:'M d, Y H:i' }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-secondary">No progress has been recorded yet. Start a course to begin tracking.</div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

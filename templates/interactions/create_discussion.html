@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}New Discussion - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Start a Discussion</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="course" class="form-label">Course</label>
+                        <select class="form-select" id="course" name="course" required>
+                            <option value="">Choose a course</option>
+                            {% for course in courses %}
+                                <option value="{{ course.pk }}">{{ course.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="body" class="form-label">Message</label>
+                        <textarea class="form-control" id="body" name="body" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Publish Discussion</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

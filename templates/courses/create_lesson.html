@@ -2,14 +2,128 @@
 {% block title %}Upload Lesson - E-Learning Platform{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="card-title">Upload Lesson</h3>
-                <form method="post" enctype="multipart/form-data">
+    <div class="col-xl-10">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-primary text-white p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <span class="badge text-bg-light mb-2">
+                            <i class="fas fa-video me-2"></i>Instructor Studio
+                        </span>
+                        <h1 class="h3 fw-bold mb-1">Upload Lesson</h1>
+                        <p class="mb-0 text-white-50">Add a lesson to one of your modules with notes, video, or a PDF resource.</p>
+                    </div>
+                    <a href="{% url 'dashboard' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-lg-5">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" class="row g-4">
                     {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Upload Lesson</button>
+
+                    <div class="col-lg-8">
+                        <div class="border rounded-3 p-4 h-100">
+                            <h2 class="h5 fw-bold mb-3">Lesson Details</h2>
+
+                            <div class="mb-3">
+                                <label for="{{ form.module.id_for_label }}" class="form-label fw-semibold">Module</label>
+                                {{ form.module }}
+                                {% if form.module.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.module.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold">Lesson Title</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.title.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.content.id_for_label }}" class="form-label fw-semibold">Content</label>
+                                {{ form.content }}
+                                <div class="form-text">Use this for lesson notes, reading material, or student instructions.</div>
+                                {% if form.content.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.content.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label for="{{ form.order.id_for_label }}" class="form-label fw-semibold">Lesson Order</label>
+                                {{ form.order }}
+                                <div class="form-text">Lower numbers appear earlier in the module.</div>
+                                {% if form.order.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.order.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="border rounded-3 p-4 bg-light h-100">
+                            <h2 class="h5 fw-bold mb-3">Media Resources</h2>
+
+                            <div class="mb-3">
+                                <label for="{{ form.video_url.id_for_label }}" class="form-label fw-semibold">Video URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    {{ form.video_url }}
+                                </div>
+                                {% if form.video_url.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.video_url.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.video_file.id_for_label }}" class="form-label fw-semibold">Video File</label>
+                                {{ form.video_file }}
+                                <div class="form-text">Upload a local video if you are not using a URL.</div>
+                                {% if form.video_file.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.video_file.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="{{ form.pdf_attachment.id_for_label }}" class="form-label fw-semibold">PDF Attachment</label>
+                                {{ form.pdf_attachment }}
+                                <div class="form-text">Add slides, worksheets, or reading files.</div>
+                                {% if form.pdf_attachment.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.pdf_attachment.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="alert alert-info mb-0">
+                                <div class="d-flex gap-3">
+                                    <i class="fas fa-circle-info fs-4"></i>
+                                    <div>
+                                        <strong>Tip</strong>
+                                        <p class="mb-0">You can provide text content, a video, a PDF, or combine them for a richer lesson.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
+                            <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-xmark me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-cloud-arrow-up me-2"></i>Upload Lesson
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

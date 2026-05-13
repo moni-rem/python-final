@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from accounts.views import CustomUserViewSet, UserProfileViewSet
+from accounts.views import CustomUserViewSet, UserProfileViewSet, AdminAnalyticsAPIView
 from courses.views import CategoryViewSet, CourseViewSet, ModuleViewSet, LessonViewSet, EnrollmentViewSet
 from assessments.views import (
     QuizViewSet,
@@ -58,6 +58,7 @@ urlpatterns = [
     path('interactions/', include('interactions.urls')),
     path('', include('courses.urls')),
     path('api/', include(router.urls)),
+    path('api/analytics/', AdminAnalyticsAPIView.as_view(), name='admin_analytics'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

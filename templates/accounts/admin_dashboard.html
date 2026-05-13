@@ -1,52 +1,201 @@
 {% extends 'base.html' %}
 {% block title %}Admin Dashboard - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row mb-4">
+<div class="row g-4 mb-4">
     <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h1 class="display-5">Admin Dashboard</h1>
-                <p class="lead">Manage users, courses, and platform activity from one place.</p>
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-body p-4 p-lg-5 bg-dark text-white">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <span class="badge text-bg-warning mb-3">
+                            <i class="fas fa-shield-halved me-2"></i>Admin Control Center
+                        </span>
+                        <h1 class="display-5 fw-bold mb-3">Admin Dashboard</h1>
+                        <p class="lead text-white-50 mb-0">
+                            Manage users, courses, assessments, discussions, and platform certificates from one place.
+                        </p>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card bg-white bg-opacity-10 border-light border-opacity-25">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-white-50">Platform Records</span>
+                                    <i class="fas fa-chart-simple text-warning fs-4"></i>
+                                </div>
+                                <div class="display-6 fw-bold">
+                                    {{ user_count|add:course_count|add:enrollment_count|add:quiz_count|add:assignment_count|add:discussion_count|add:certificate_count }}
+                                </div>
+                                <small class="text-white-50">Total tracked items across the system</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-uppercase text-muted fw-semibold small mb-2">Total Users</p>
+                        <h2 class="fw-bold mb-1">{{ user_count }}</h2>
+                        <p class="text-muted mb-0">Registered accounts</p>
+                    </div>
+                    <span class="badge rounded-pill text-bg-primary p-3">
+                        <i class="fas fa-users"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-uppercase text-muted fw-semibold small mb-2">Courses</p>
+                        <h2 class="fw-bold mb-1">{{ course_count }}</h2>
+                        <p class="text-muted mb-0">Available courses</p>
+                    </div>
+                    <span class="badge rounded-pill text-bg-success p-3">
+                        <i class="fas fa-book-open"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-uppercase text-muted fw-semibold small mb-2">Enrollments</p>
+                        <h2 class="fw-bold mb-1">{{ enrollment_count }}</h2>
+                        <p class="text-muted mb-0">Student course joins</p>
+                    </div>
+                    <span class="badge rounded-pill text-bg-info p-3">
+                        <i class="fas fa-user-graduate"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-uppercase text-muted fw-semibold small mb-2">Certificates</p>
+                        <h2 class="fw-bold mb-1">{{ certificate_count }}</h2>
+                        <p class="text-muted mb-0">Issued achievements</p>
+                    </div>
+                    <span class="badge rounded-pill text-bg-warning p-3">
+                        <i class="fas fa-award"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Total Users</h6>
-                <h2>{{ user_count }}</h2>
-                <p class="mb-0">Registered users on the platform.</p>
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">Platform Activity</h5>
+                        <p class="text-muted mb-0">A quick snapshot of learning content and engagement.</p>
+                    </div>
+                    <a class="btn btn-primary align-self-start" href="/admin/">
+                        <i class="fas fa-screwdriver-wrench me-2"></i>Open Django Admin
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge text-bg-primary me-2"><i class="fas fa-circle-question"></i></span>
+                                <span class="fw-semibold">Quizzes</span>
+                            </div>
+                            <div class="fs-2 fw-bold">{{ quiz_count }}</div>
+                            <p class="text-muted mb-0">Assessment quizzes created for learners.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge text-bg-success me-2"><i class="fas fa-file-lines"></i></span>
+                                <span class="fw-semibold">Assignments</span>
+                            </div>
+                            <div class="fs-2 fw-bold">{{ assignment_count }}</div>
+                            <p class="text-muted mb-0">Course assignments available for submission.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge text-bg-info me-2"><i class="fas fa-comments"></i></span>
+                                <span class="fw-semibold">Discussions</span>
+                            </div>
+                            <div class="fs-2 fw-bold">{{ discussion_count }}</div>
+                            <p class="text-muted mb-0">Community discussion threads started.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 h-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge text-bg-warning me-2"><i class="fas fa-certificate"></i></span>
+                                <span class="fw-semibold">Certificates</span>
+                            </div>
+                            <div class="fs-2 fw-bold">{{ certificate_count }}</div>
+                            <p class="text-muted mb-0">Completion certificates awarded to students.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Total Courses</h6>
-                <h2>{{ course_count }}</h2>
-                <p class="mb-0">Courses available for learners.</p>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-1">Admin Actions</h5>
+                <p class="text-muted mb-0">Jump into common management tasks.</p>
             </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Total Enrollments</h6>
-                <h2>{{ enrollment_count }}</h2>
-                <p class="mb-0">All student enrollments.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Admin Actions</h5>
-                <p>You can manage users and course content using the built-in Django admin panel.</p>
-                <a class="btn btn-primary" href="/admin/">Open Django Admin</a>
+            <div class="card-body p-4">
+                <div class="list-group list-group-flush">
+                    <a href="/admin/" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        <span><i class="fas fa-shield-halved text-primary me-2"></i>Django Admin</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </a>
+                    <a href="{% url 'course_list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        <span><i class="fas fa-book-open text-success me-2"></i>View Courses</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </a>
+                    <a href="{% url 'review_quiz_attempts' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        <span><i class="fas fa-clipboard-check text-warning me-2"></i>Review Quizzes</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </a>
+                    <a href="{% url 'assignment_list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        <span><i class="fas fa-file-lines text-info me-2"></i>Assignments</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </a>
+                    <a href="{% url 'discussion_list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        <span><i class="fas fa-comments text-secondary me-2"></i>Discussions</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </a>
+                    <a href="{% url 'certificate_list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        <span><i class="fas fa-award text-danger me-2"></i>Certificates</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

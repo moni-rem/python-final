@@ -1,31 +1,326 @@
 {% extends 'base.html' %}
-{% block title %}Certificates - E-Learning Platform{% endblock %}
+{% block title %}My Certificates - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1>Certificates</h1>
-        <p>View certificates you have earned from completed courses.</p>
-    </div>
-</div>
-<div class="row">
-    {% if certificates %}
-        {% for certificate in certificates %}
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ certificate.course.title }}</h5>
-                        <p class="card-text">Issued on {{ certificate.issued_at|date:'M d, Y' }}</p>
-                        {% if certificate.certificate_url %}
-                            <a href="{{ certificate.certificate_url }}" class="btn btn-primary" target="_blank">View Certificate</a>
-                        {% endif %}
-                    </div>
+<section class="card border-0 shadow-sm overflow-hidden mb-4">
+    <div class="card-body bg-dark text-white p-4 p-lg-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge text-bg-warning mb-3">
+                    <i class="fas fa-award me-2"></i>Achievements
+                </span>
+                <h1 class="display-6 fw-bold mb-3">My Certificates</h1>
+                <p class="lead text-white-50 mb-0">View the certificates you have earned from completed courses.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="border border-light border-opacity-25 rounded-3 p-3 d-inline-block text-center">
+                    <div class="h2 fw-bold mb-0">{{ certificates|length }}</div>
+                    <small class="text-white-50">Certificates Earned</small>
                 </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="col-12">
-            <div class="alert alert-secondary">You haven't earned any certificates yet.</div>
         </div>
-    {% endif %}
-</div>
+    </div>
+</section>
+
+{% if certificates %}
+    <div class="row g-4">
+        {% for certificate in certificates %}
+            <div class="col-12">
+                <article class="certificate-sheet shadow-sm">
+                    <div class="certificate-ribbon">
+                        <div class="certificate-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="certificate-seal">
+                            <span>Best</span>
+                            <strong>Award</strong>
+                            <small><i class="fas fa-star"></i></small>
+                        </div>
+                    </div>
+
+                    <div class="certificate-content">
+                        <p class="certificate-id">Certificate #{{ certificate.id }}</p>
+                        <h2>Certificate</h2>
+                        <div class="certificate-subtitle">
+                            <span></span>
+                            <strong>of Completion</strong>
+                            <span></span>
+                        </div>
+
+                        <p class="certificate-presented">This certificate is presented to</p>
+                        <h3>{{ user.get_full_name|default:user.username }}</h3>
+                        <div class="certificate-name-line"></div>
+
+                        <p class="certificate-description">
+                            For successfully completing the course
+                            <strong>{{ certificate.course.title }}</strong>
+                            on the E-Learning Platform.
+                        </p>
+
+                        <div class="certificate-footer">
+                            <div>
+                                <span></span>
+                                <p>{{ certificate.issued_at|date:'M d, Y' }}</p>
+                                <small>Date</small>
+                            </div>
+                            <div>
+                                <span></span>
+                                <p>E-Learn</p>
+                                <small>Signature</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-4">
+                            <a href="{% url 'course_detail' certificate.course.pk %}" class="btn btn-outline-primary">
+                                <i class="fas fa-book-open me-2"></i>View Course
+                            </a>
+                            <a href="{% url 'download_certificate' certificate.pk %}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download
+                            </a>
+                            {% if certificate.certificate_url %}
+                                <a href="{{ certificate.certificate_url }}" class="btn btn-outline-secondary" target="_blank" rel="noopener">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open Certificate
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center p-5">
+            <div class="display-5 text-warning mb-3">
+                <i class="fas fa-award"></i>
+            </div>
+            <h2 class="h4 fw-bold mb-2">No certificates yet</h2>
+            <p class="text-muted mb-4">Complete all lessons, quizzes, and assignments in a course to earn your certificate.</p>
+            <a href="{% url 'course_list' %}" class="btn btn-primary">
+                <i class="fas fa-book-open me-2"></i>Browse Courses
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+.certificate-sheet {
+    background:
+        repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.04) 0, rgba(15, 23, 42, 0.04) 1px, transparent 1px, transparent 9px),
+        #ffffff;
+    border: 1px solid #d8dee9;
+    min-height: 520px;
+    overflow: hidden;
+    position: relative;
+}
+.certificate-ribbon {
+    background: #1f376d;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 24%;
+}
+.certificate-ribbon::before {
+    background: #d19a2a;
+    border-radius: 0 50% 50% 0;
+    bottom: -20%;
+    content: "";
+    position: absolute;
+    right: -120px;
+    top: -20%;
+    width: 220px;
+}
+.certificate-ribbon::after {
+    background: #ffffff;
+    border-radius: 0 50% 50% 0;
+    bottom: -12%;
+    content: "";
+    position: absolute;
+    right: -88px;
+    top: -12%;
+    width: 190px;
+}
+.certificate-stars {
+    color: #ffffff;
+    display: flex;
+    gap: 0.9rem;
+    left: 4rem;
+    position: absolute;
+    top: 2.5rem;
+    z-index: 2;
+}
+.certificate-stars i:nth-child(2) {
+    font-size: 1.5rem;
+}
+.certificate-seal {
+    align-items: center;
+    background: #1f376d;
+    border: 14px solid #e4b64f;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 128px;
+    justify-content: center;
+    left: 3rem;
+    position: absolute;
+    text-align: center;
+    text-transform: uppercase;
+    top: 45%;
+    transform: translateY(-50%);
+    width: 128px;
+    z-index: 3;
+}
+.certificate-seal span {
+    font-style: italic;
+    text-transform: none;
+}
+.certificate-seal strong {
+    font-size: 1.1rem;
+}
+.certificate-content {
+    margin-left: 26%;
+    padding: 3.5rem 4rem 2.5rem;
+    position: relative;
+    text-align: center;
+    z-index: 4;
+}
+.certificate-id {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+    text-align: right;
+}
+.certificate-content h2 {
+    color: #222222;
+    font-size: 4rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    margin: 0;
+    text-transform: uppercase;
+}
+.certificate-subtitle {
+    align-items: center;
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+}
+.certificate-subtitle span {
+    background: #222222;
+    display: block;
+    height: 2px;
+    width: 90px;
+}
+.certificate-subtitle strong {
+    color: #444444;
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+.certificate-presented {
+    color: #222222;
+    font-size: 1.15rem;
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+}
+.certificate-content h3 {
+    color: #222222;
+    font-size: 2.7rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+}
+.certificate-name-line {
+    background: #222222;
+    height: 3px;
+    margin: 0 auto 2rem;
+    max-width: 560px;
+}
+.certificate-description {
+    color: #333333;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0 auto 3.5rem;
+    max-width: 680px;
+}
+.certificate-description strong {
+    display: block;
+    font-size: 1.2rem;
+}
+.certificate-footer {
+    display: flex;
+    gap: 4rem;
+    justify-content: center;
+}
+.certificate-footer div {
+    min-width: 190px;
+}
+.certificate-footer span {
+    background: #222222;
+    display: block;
+    height: 2px;
+    margin-bottom: 0.8rem;
+}
+.certificate-footer p {
+    color: #222222;
+    font-size: 1.05rem;
+    margin-bottom: 0.1rem;
+}
+.certificate-footer small {
+    color: #6b7280;
+}
+
+@media (max-width: 991.98px) {
+    .certificate-sheet {
+        min-height: auto;
+    }
+    .certificate-ribbon {
+        height: 90px;
+        position: relative;
+        width: 100%;
+    }
+    .certificate-ribbon::before,
+    .certificate-ribbon::after {
+        display: none;
+    }
+    .certificate-stars {
+        left: 2rem;
+        top: 2rem;
+    }
+    .certificate-seal {
+        height: 92px;
+        left: auto;
+        right: 2rem;
+        top: 45px;
+        width: 92px;
+    }
+    .certificate-content {
+        margin-left: 0;
+        padding: 2rem 1.5rem;
+    }
+    .certificate-id {
+        text-align: center;
+    }
+    .certificate-content h2 {
+        font-size: 2.5rem;
+    }
+    .certificate-subtitle {
+        margin-bottom: 2rem;
+    }
+    .certificate-subtitle span {
+        width: 56px;
+    }
+    .certificate-content h3 {
+        font-size: 1.9rem;
+    }
+    .certificate-footer {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+</style>
 {% endblock %}

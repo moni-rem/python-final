@@ -5,16 +5,67 @@
     <div class="col-lg-8">
         <div class="card mb-4">
             <div class="card-body">
-                <h1>{{ module.title }}</h1>
-                <p class="text-muted">Course: <a href="{% url 'course_detail' module.course.pk %}">{{ module.course.title }}</a></p>
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+                    <div>
+                        <h1>{{ module.title }}</h1>
+                        <p class="text-muted mb-0">Course: <a href="{% url 'course_detail' module.course.pk %}">{{ module.course.title }}</a></p>
+                    </div>
+                    {% if user.is_authenticated and enrolled %}
+                        <div class="text-md-end">
+                            <div class="fw-semibold">{{ lesson_percent }}% complete</div>
+                            <a href="{% url 'progress_dashboard' %}" class="btn btn-outline-primary btn-sm mt-2">View Progress</a>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if user.is_authenticated and enrolled %}
+                    <div class="progress mb-4" role="progressbar" aria-label="Module lesson progress" aria-valuenow="{{ lesson_percent }}" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                        <div class="progress-bar bg-success" style="width: {{ lesson_percent }}%"></div>
+                    </div>
+                {% endif %}
                 <h5>Lessons</h5>
                 {% if lessons %}
                     <ul class="list-group list-group-flush">
                         {% for lesson in lessons %}
-                            <li class="list-group-item">
-                                <strong>{{ lesson.title }}</strong>
+                            <li class="list-group-item mb-3 border">
+                                <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+                                    <h4 class="mb-2">{{ lesson.title }}</h4>
+                                    {% if user.is_authenticated and enrolled %}
+                                        {% if lesson.id in completed_lesson_ids %}
+                                            <span class="badge bg-success align-self-start">Completed</span>
+                                        {% else %}
+                                            <form method="post" action="{% url 'mark_lesson_complete' lesson.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-check me-1"></i>Mark Complete
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
                                 {% if lesson.content %}
-                                    <p class="mb-0">{{ lesson.content|truncatewords:25 }}</p>
+                                    <p>{{ lesson.content }}</p>
+                                {% endif %}
+
+                                {% if lesson.video_file %}
+                                    <div class="mb-3">
+                                        <video width="100%" controls>
+                                            <source src="{{ lesson.video_file.url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                {% endif %}
+
+                                {% if lesson.video_url %}
+                                    <div class="mb-2">
+                                        <a href="{{ lesson.video_url }}" target="_blank" class="btn btn-outline-primary btn-sm">Watch External Video</a>
+                                    </div>
+                                {% endif %}
+
+                                {% if lesson.pdf_attachment %}
+                                    <div class="mb-2">
+                                        <a href="{{ lesson.pdf_attachment.url }}" target="_blank" class="btn btn-outline-danger btn-sm">Download PDF Document</a>
+                                    </div>
                                 {% endif %}
                             </li>
                         {% endfor %}

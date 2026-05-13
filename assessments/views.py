@@ -3,40 +3,88 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from .models import Quiz, Question, Choice, QuizAttempt, Assignment, AssignmentSubmission
-from .forms import QuizForm, AssignmentForm
+from .forms import QuizForm, QuizAttemptGradeForm, AssignmentForm
 from accounts.utils import instructor_required
 from accounts.permissions import IsInstructorOrReadOnly
 from courses.models import Course, Module
+from interactions.utils import sync_course_completion
 
 
 @login_required
 def quiz_list(request):
-    quizzes = Quiz.objects.select_related('module', 'module__course').all()
-    return render(request, 'assessments/quiz_list.html', {'quizzes': quizzes})
+    modules = Module.objects.select_related('course').order_by(
+        'course__title',
+        'order',
+    )
+    selected_module = None
+    quizzes = Quiz.objects.none()
+
+    module_id = request.GET.get('module')
+    if module_id:
+        selected_module = get_object_or_404(modules, pk=module_id)
+        quizzes = Quiz.objects.select_related('module', 'module__course').filter(module=selected_module)
+
+    return render(request, 'assessments/quiz_list.html', {
+        'modules': modules,
+        'selected_module': selected_module,
+        'quizzes': quizzes,
+    })
 
 
 @login_required
 def quiz_detail(request, pk):
-    quiz = get_object_or_404(Quiz, pk=pk)
+    quiz = get_object_or_404(Quiz.objects.select_related('module', 'module__course'), pk=pk)
     questions = quiz.questions.prefetch_related('choices')
     result = None
+    latest_attempt = QuizAttempt.objects.filter(student=request.user, quiz=quiz).order_by('-attempted_at').first()
 
     if request.method == 'POST':
         score = 0
-        for question in questions:
-            selected_choice_id = request.POST.get(str(question.id))
-            if selected_choice_id and question.choices.filter(pk=selected_choice_id, is_correct=True).exists():
-                score += 1
+        total = 0
 
-        total = questions.count()
-        percent = round((score / total) * 100, 2) if total else 0.0
-        QuizAttempt.objects.create(student=request.user, quiz=quiz, score=percent)
-        result = {'score': percent, 'total': total}
+        # Handle multiple choice scoring if applicable
+        if quiz.quiz_type == 'multiple_choice' or quiz.quiz_type == 'mixed':
+            mc_questions = questions
+            for question in mc_questions:
+                total += 1
+                selected_choice_id = request.POST.get(str(question.id))
+                if selected_choice_id and question.choices.filter(pk=selected_choice_id, is_correct=True).exists():
+                    score += 1
+
+        # For essay-only or mixed, score needs manual review
+        if quiz.quiz_type == 'essay' or quiz.quiz_type == 'mixed':
+            text_response = request.POST.get('text_response')
+        else:
+            text_response = None
+
+        file_upload = request.FILES.get('file_upload')
+
+        percent = round((score / total) * 100, 2) if total > 0 else 0.0
+        needs_review = quiz.quiz_type in ['essay', 'mixed']
+        saved_score = percent if quiz.quiz_type == 'multiple_choice' else None
+
+        latest_attempt = QuizAttempt.objects.create(
+            student=request.user,
+            quiz=quiz,
+            score=saved_score,
+            file_upload=file_upload,
+            text_response=text_response
+        )
+        completion = sync_course_completion(request.user, quiz.module.course, touch_progress=True)
+        if completion['certificate_created']:
+            messages.success(request, 'Congratulations! Your course certificate is ready.')
+        result = {
+            'score': saved_score,
+            'multiple_choice_score': percent if total > 0 else None,
+            'total': total,
+            'needs_review': needs_review,
+        }
 
     return render(request, 'assessments/quiz_detail.html', {
         'quiz': quiz,
         'questions': questions,
         'result': result,
+        'latest_attempt': latest_attempt,
     })
 
 
@@ -65,6 +113,56 @@ def create_quiz(request):
 
 @login_required
 @instructor_required
+def review_quiz_attempts(request):
+    attempts = QuizAttempt.objects.select_related(
+        'student',
+        'quiz',
+        'quiz__module',
+        'quiz__module__course',
+    ).order_by('-attempted_at')
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'admin'):
+        attempts = attempts.filter(quiz__module__course__instructor=request.user)
+
+    pending_attempts = attempts.filter(score__isnull=True).count()
+    graded_attempts = attempts.filter(score__isnull=False).count()
+
+    return render(request, 'assessments/review_quiz_attempts.html', {
+        'attempts': attempts,
+        'pending_attempts': pending_attempts,
+        'graded_attempts': graded_attempts,
+    })
+
+
+@login_required
+@instructor_required
+def grade_quiz_attempt(request, pk):
+    attempts = QuizAttempt.objects.select_related(
+        'student',
+        'quiz',
+        'quiz__module',
+        'quiz__module__course',
+    )
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'admin'):
+        attempts = attempts.filter(quiz__module__course__instructor=request.user)
+    attempt = get_object_or_404(attempts, pk=pk)
+
+    if request.method == 'POST':
+        form = QuizAttemptGradeForm(request.POST, instance=attempt)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Quiz attempt has been graded.')
+            return redirect('review_quiz_attempts')
+    else:
+        form = QuizAttemptGradeForm(instance=attempt)
+
+    return render(request, 'assessments/grade_quiz_attempt.html', {
+        'attempt': attempt,
+        'form': form,
+    })
+
+
+@login_required
+@instructor_required
 def create_assignment(request):
     if request.method == 'POST':
         form = AssignmentForm(request.POST)
@@ -82,7 +180,7 @@ def create_assignment(request):
 
 @login_required
 def assignment_submit(request, pk):
-    assignment = get_object_or_404(Assignment, pk=pk)
+    assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
     submission = AssignmentSubmission.objects.filter(assignment=assignment, student=request.user).first()
 
     if request.method == 'POST':
@@ -97,7 +195,11 @@ def assignment_submit(request, pk):
                 'text_submission': text_submission,
             }
         )
-        messages.success(request, 'Your assignment submission has been saved.')
+        completion = sync_course_completion(request.user, assignment.course, touch_progress=True)
+        if completion['certificate_created']:
+            messages.success(request, 'Your assignment submission has been saved. Your course certificate is ready.')
+        else:
+            messages.success(request, 'Your assignment submission has been saved.')
         return redirect('assignment_list')
 
     return render(request, 'assessments/assignment_submit.html', {
@@ -141,7 +243,8 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(student=self.request.user)
+        attempt = serializer.save(student=self.request.user)
+        sync_course_completion(self.request.user, attempt.quiz.module.course, touch_progress=True)
 
     def get_queryset(self):
         if self.request.user.is_staff or self.request.user.is_superuser:
@@ -161,7 +264,8 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(student=self.request.user)
+        submission = serializer.save(student=self.request.user)
+        sync_course_completion(self.request.user, submission.assignment.course, touch_progress=True)
 
     def get_queryset(self):
         if self.request.user.is_staff or self.request.user.is_superuser:

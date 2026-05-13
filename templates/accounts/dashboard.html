@@ -1,89 +1,624 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row mb-4">
+{% if is_instructor_dashboard %}
+<section class="dashboard-hero instructor-hero mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="dashboard-eyebrow"><i class="fas fa-chalkboard-teacher me-2"></i>Instructor workspace</span>
+            <h1 class="dashboard-title">Welcome back, {{ user.first_name|default:user.username }}.</h1>
+            <p class="dashboard-copy mb-0">Build courses, review learner work, and keep a clear pulse on your classes from one focused dashboard.</p>
+        </div>
+        <div class="col-lg-4">
+            <div class="hero-stat-grid">
+                <div>
+                    <span>{{ instructor_courses|length }}</span>
+                    <small>Courses</small>
+                </div>
+                <div>
+                    <span>{{ instructor_student_count }}</span>
+                    <small>Students</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-panel">
+            <div class="metric-icon bg-primary-subtle text-primary"><i class="fas fa-book-open"></i></div>
+            <p>Published Courses</p>
+            <strong>{{ instructor_courses|length }}</strong>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-panel">
+            <div class="metric-icon bg-success-subtle text-success"><i class="fas fa-users"></i></div>
+            <p>Total Students</p>
+            <strong>{{ instructor_student_count }}</strong>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-panel">
+            <div class="metric-icon bg-warning-subtle text-warning"><i class="fas fa-clipboard-check"></i></div>
+            <p>Pending Reviews</p>
+            <strong>{{ pending_quiz_reviews|add:ungraded_assignment_submissions }}</strong>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-panel">
+            <div class="metric-icon bg-info-subtle text-info"><i class="fas fa-layer-group"></i></div>
+            <p>Assessments</p>
+            <strong>{{ instructor_quiz_count|add:instructor_assignment_count }}</strong>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
     <div class="col-lg-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h3>Welcome back, {{ user.first_name|default:user.username }}!</h3>
-                <p class="mb-0">Here is your personalized learning dashboard with recent activity and course progress.</p>
-            </div>
-        </div>
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-0">
-                    <div class="card-body">
-                        <h6 class="text-uppercase text-muted">Courses</h6>
-                        <h2>{{ enrollments|length }}</h2>
-                        <p class="mb-0">Courses you are enrolled in.</p>
-                    </div>
+        <div class="dashboard-panel h-100">
+            <div class="panel-heading">
+                <div>
+                    <h2>Your Teaching Tools</h2>
+                    <p>Fast paths for the work instructors do most often.</p>
                 </div>
+                <a class="btn btn-primary" href="{% url 'create_course' %}">
+                    <i class="fas fa-plus me-2"></i>New Course
+                </a>
             </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-0">
-                    <div class="card-body">
-                        <h6 class="text-uppercase text-muted">Progress</h6>
-                        <h2>{{ progress_list|length }}</h2>
-                        <p class="mb-0">Tracked learning progress entries.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-0">
-                    <div class="card-body">
-                        <h6 class="text-uppercase text-muted">Certificates</h6>
-                        <h2>{{ certificates|length }}</h2>
-                        <p class="mb-0">Certificates earned so far.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Enrolled Courses</h5>
-                {% if enrollments %}
-                    <ul class="list-group list-group-flush">
-                        {% for enrollment in enrollments %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="{% url 'course_detail' enrollment.course.pk %}">{{ enrollment.course.title }}</a>
-                                <span class="text-muted">{{ enrollment.enrolled_at|date:'M d, Y' }}</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="mb-0">You are not enrolled in any courses yet.</p>
-                {% endif %}
+            <div class="action-grid">
+                <a class="instructor-action" href="{% url 'create_module' %}">
+                    <i class="fas fa-folder-plus"></i>
+                    <span>Create Module</span>
+                    <small>Structure course sections</small>
+                </a>
+                <a class="instructor-action" href="{% url 'create_lesson' %}">
+                    <i class="fas fa-video"></i>
+                    <span>Upload Lesson</span>
+                    <small>Add video, PDF, or text</small>
+                </a>
+                <a class="instructor-action" href="{% url 'create_quiz' %}">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Create Quiz</span>
+                    <small>Check understanding</small>
+                </a>
+                <a class="instructor-action" href="{% url 'review_quiz_attempts' %}">
+                    <i class="fas fa-pen-to-square"></i>
+                    <span>Review Quizzes</span>
+                    <small>{{ pending_quiz_reviews }} waiting</small>
+                </a>
+                <a class="instructor-action" href="{% url 'create_assignment' %}">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <span>Create Assignment</span>
+                    <small>Set learner tasks</small>
+                </a>
+                <a class="instructor-action" href="{% url 'monitor_student_progress' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Student Progress</span>
+                    <small>Track course momentum</small>
+                </a>
             </div>
         </div>
     </div>
     <div class="col-lg-4">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Profile</h5>
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Role:</strong> {{ user.get_role_display }}</p>
-                <a class="btn btn-outline-primary" href="{% url 'profile' %}">Edit Profile</a>
+        <div class="dashboard-panel h-100">
+            <div class="panel-heading compact">
+                <div>
+                    <h2>Review Queue</h2>
+                    <p>Work that needs attention.</p>
+                </div>
+            </div>
+            <div class="review-list">
+                <a href="{% url 'review_quiz_attempts' %}">
+                    <span><i class="fas fa-clipboard-list me-2"></i>Quiz submissions</span>
+                    <strong>{{ pending_quiz_reviews }}</strong>
+                </a>
+                <a href="{% url 'assignment_list' %}">
+                    <span><i class="fas fa-file-lines me-2"></i>Ungraded assignments</span>
+                    <strong>{{ ungraded_assignment_submissions }}</strong>
+                </a>
+                <a href="{% url 'monitor_student_progress' %}">
+                    <span><i class="fas fa-user-graduate me-2"></i>Active learners</span>
+                    <strong>{{ instructor_student_count }}</strong>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="dashboard-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Recent Courses</h2>
+                    <p>Your newest or most recently updated course spaces.</p>
+                </div>
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'course_list' %}">View Catalog</a>
+            </div>
+            {% if instructor_courses %}
+                <div class="course-stack">
+                    {% for course in instructor_courses|slice:":4" %}
+                        <a class="course-row" href="{% url 'course_detail' course.pk %}">
+                            <div class="course-avatar">
+                                {% if course.thumbnail %}
+                                    <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                                {% else %}
+                                    <i class="fas fa-book"></i>
+                                {% endif %}
+                            </div>
+                            <div class="course-row-body">
+                                <h3>{{ course.title }}</h3>
+                                <p>
+                                    {% if course.category %}{{ course.category.name }}{% else %}Uncategorized{% endif %}
+                                    <span>Updated {{ course.updated_at|date:'M d, Y' }}</span>
+                                </p>
+                            </div>
+                            <div class="course-row-meta">
+                                <strong>{{ course.enrollment_total }}</strong>
+                                <small>students</small>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-panel">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Start your first course</h3>
+                    <p>Create a course, then add modules, lessons, quizzes, and assignments.</p>
+                    <a class="btn btn-primary" href="{% url 'create_course' %}">Create Course</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="dashboard-panel">
+            <div class="panel-heading compact">
+                <div>
+                    <h2>Profile</h2>
+                    <p>Your account details.</p>
+                </div>
+            </div>
+            <div class="profile-summary">
+                <div class="profile-avatar">{{ user.first_name|first|default:user.username|first|upper }}</div>
+                <div>
+                    <h3>{{ user.get_full_name|default:user.username }}</h3>
+                    <p>{{ user.email|default:"No email added" }}</p>
+                    <span>{{ user.get_role_display }}</span>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <a class="btn btn-outline-primary" href="{% url 'profile' %}">
+                    <i class="fas fa-user-pen me-2"></i>Edit Profile
+                </a>
                 {% if user.role == 'admin' or user.is_staff or user.is_superuser %}
-                    <a class="btn btn-warning ms-2" href="{% url 'admin_dashboard' %}">Admin Panel</a>
+                    <a class="btn btn-warning" href="{% url 'admin_dashboard' %}">
+                        <i class="fas fa-shield-halved me-2"></i>Admin Panel
+                    </a>
                 {% endif %}
             </div>
         </div>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Quick Access</h5>
-                <ul class="list-unstyled mb-0">
-                    <li><a href="{% url 'course_list' %}">Browse all courses</a></li>
-                    <li><a href="{% url 'quiz_list' %}">Take a quiz</a></li>
-                    <li><a href="{% url 'assignment_list' %}">Submit assignments</a></li>
-                    {% if user.role == 'instructor' or user.role == 'admin' or user.is_staff or user.is_superuser %}
-                        <li><a href="{% url 'create_course' %}">Create a course</a></li>
-                        <li><a href="{% url 'create_quiz' %}">Create a quiz</a></li>
-                        <li><a href="{% url 'create_assignment' %}">Create an assignment</a></li>
-                        <li><a href="{% url 'monitor_student_progress' %}">Monitor student progress</a></li>
-                    {% endif %}
-                </ul>
+    </div>
+</section>
+{% else %}
+<section class="dashboard-hero learner-hero mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="dashboard-eyebrow"><i class="fas fa-graduation-cap me-2"></i>Learner dashboard</span>
+            <h1 class="dashboard-title">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+            <p class="dashboard-copy mb-0">Here is your personalized learning dashboard with recent activity and course progress.</p>
+        </div>
+        <div class="col-lg-4">
+            <a class="btn btn-light btn-lg shadow-sm" href="{% url 'course_list' %}">
+                <i class="fas fa-book-open me-2"></i>Browse Courses
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="metric-panel">
+            <div class="metric-icon bg-primary-subtle text-primary"><i class="fas fa-book-open"></i></div>
+            <p>Courses</p>
+            <strong>{{ enrollments|length }}</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-panel">
+            <div class="metric-icon bg-success-subtle text-success"><i class="fas fa-chart-line"></i></div>
+            <p>Progress Entries</p>
+            <strong>{{ progress_list|length }}</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-panel">
+            <div class="metric-icon bg-warning-subtle text-warning"><i class="fas fa-award"></i></div>
+            <p>Certificates</p>
+            <strong>{{ certificates|length }}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="dashboard-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Enrolled Courses</h2>
+                    <p>Pick up where you left off.</p>
+                </div>
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'progress_dashboard' %}">Open Progress</a>
+            </div>
+            {% if enrollments %}
+                <div class="course-stack">
+                    {% for enrollment in enrollments %}
+                        <a class="course-row" href="{% url 'course_detail' enrollment.course.pk %}">
+                            <div class="course-avatar"><i class="fas fa-book"></i></div>
+                            <div class="course-row-body">
+                                <h3>{{ enrollment.course.title }}</h3>
+                                <p>Enrolled {{ enrollment.enrolled_at|date:'M d, Y' }}</p>
+                            </div>
+                            <i class="fas fa-arrow-right text-muted"></i>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-panel">
+                    <i class="fas fa-book-open"></i>
+                    <h3>No courses yet</h3>
+                    <p>Browse the catalog and enroll in your first course.</p>
+                    <a class="btn btn-primary" href="{% url 'course_list' %}">Browse Courses</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="dashboard-panel">
+            <div class="panel-heading compact">
+                <div>
+                    <h2>Quick Access</h2>
+                    <p>Common student actions.</p>
+                </div>
+            </div>
+            <div class="quick-links">
+                <a href="{% url 'course_list' %}"><i class="fas fa-search"></i>Browse courses</a>
+                <a href="{% url 'progress_dashboard' %}"><i class="fas fa-chart-simple"></i>Review progress</a>
+                <a href="{% url 'quiz_list' %}"><i class="fas fa-question-circle"></i>Take a quiz</a>
+                <a href="{% url 'assignment_list' %}"><i class="fas fa-file-upload"></i>Submit assignments</a>
+                <a href="{% url 'profile' %}"><i class="fas fa-user-pen"></i>Edit profile</a>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
+
+<style>
+.dashboard-hero {
+    border-radius: 0.5rem;
+    color: #fff;
+    overflow: hidden;
+    padding: 2.25rem;
+    position: relative;
+}
+.instructor-hero {
+    /* background: linear-gradient(135deg, #1f2937 0%, #0f766e 52%, #b45309 100%); */
+    background: black;
+}
+.learner-hero {
+    background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+}
+.dashboard-eyebrow {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-bottom: 1rem;
+    padding: 0.45rem 0.8rem;
+    text-transform: uppercase;
+}
+.dashboard-title {
+    font-size: 2.35rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin-bottom: 0.75rem;
+}
+.dashboard-copy {
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 1.05rem;
+    max-width: 680px;
+}
+.hero-stat-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.hero-stat-grid div {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 0.5rem;
+    min-height: 112px;
+    padding: 1.2rem;
+}
+.hero-stat-grid span {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+}
+.hero-stat-grid small {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.metric-panel,
+.dashboard-panel {
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0.5rem;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+.metric-panel {
+    align-items: center;
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: auto 1fr auto;
+    min-height: 116px;
+    padding: 1.2rem;
+}
+.metric-icon {
+    align-items: center;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    height: 48px;
+    justify-content: center;
+    width: 48px;
+}
+.metric-panel p {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+}
+.metric-panel strong {
+    color: #0f172a;
+    font-size: 2rem;
+    line-height: 1;
+}
+.dashboard-panel {
+    padding: 1.35rem;
+}
+.panel-heading {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+}
+.panel-heading.compact {
+    margin-bottom: 1rem;
+}
+.panel-heading h2 {
+    color: #0f172a;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin: 0;
+}
+.panel-heading p {
+    color: #64748b;
+    margin: 0.25rem 0 0;
+}
+.action-grid {
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.instructor-action {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    color: #0f172a;
+    display: grid;
+    gap: 0.35rem;
+    min-height: 132px;
+    padding: 1rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.instructor-action:hover,
+.course-row:hover,
+.review-list a:hover,
+.quick-links a:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 10px 24px rgba(14, 116, 144, 0.12);
+    color: #0f172a;
+    transform: translateY(-2px);
+}
+.instructor-action i {
+    color: #0f766e;
+    font-size: 1.35rem;
+}
+.instructor-action span {
+    font-weight: 800;
+}
+.instructor-action small,
+.course-row-body p,
+.course-row-meta small {
+    color: #64748b;
+}
+.review-list,
+.quick-links,
+.course-stack {
+    display: grid;
+    gap: 0.75rem;
+}
+.review-list a,
+.quick-links a,
+.course-row {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    color: #0f172a;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.review-list strong {
+    background: #f1f5f9;
+    border-radius: 999px;
+    min-width: 2.3rem;
+    padding: 0.3rem 0.65rem;
+    text-align: center;
+}
+.quick-links a {
+    justify-content: flex-start;
+}
+.quick-links i {
+    color: #0f766e;
+    margin-right: 0.8rem;
+    width: 1.1rem;
+}
+.course-row {
+    gap: 1rem;
+}
+.course-avatar {
+    align-items: center;
+    background: #e0f2fe;
+    border-radius: 0.5rem;
+    color: #0369a1;
+    display: inline-flex;
+    flex: 0 0 58px;
+    height: 58px;
+    justify-content: center;
+    overflow: hidden;
+    width: 58px;
+}
+.course-avatar img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+.course-row-body {
+    flex: 1;
+    min-width: 0;
+}
+.course-row-body h3 {
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin: 0 0 0.2rem;
+    overflow-wrap: anywhere;
+}
+.course-row-body p {
+    margin: 0;
+}
+.course-row-body span {
+    display: inline-block;
+    margin-left: 0.6rem;
+}
+.course-row-meta {
+    min-width: 72px;
+    text-align: right;
+}
+.course-row-meta strong {
+    display: block;
+    font-size: 1.35rem;
+    line-height: 1;
+}
+.profile-summary {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+}
+.profile-avatar {
+    align-items: center;
+    background: #0f766e;
+    border-radius: 0.5rem;
+    color: #fff;
+    display: inline-flex;
+    flex: 0 0 58px;
+    font-size: 1.45rem;
+    font-weight: 800;
+    height: 58px;
+    justify-content: center;
+    width: 58px;
+}
+.profile-summary h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+}
+.profile-summary p {
+    color: #64748b;
+    margin: 0.2rem 0;
+    overflow-wrap: anywhere;
+}
+.profile-summary span {
+    background: #f1f5f9;
+    border-radius: 999px;
+    color: #334155;
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+}
+.empty-panel {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+}
+.empty-panel i {
+    color: #0f766e;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+}
+.empty-panel h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+.empty-panel p {
+    color: #64748b;
+}
+
+@media (max-width: 767.98px) {
+    .dashboard-hero {
+        padding: 1.5rem;
+    }
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+    .metric-panel {
+        grid-template-columns: auto 1fr;
+    }
+    .metric-panel strong {
+        grid-column: 2;
+    }
+    .panel-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+    .course-row {
+        align-items: flex-start;
+    }
+    .course-row-body span {
+        display: block;
+        margin-left: 0;
+    }
+}
+</style>
 {% endblock %}

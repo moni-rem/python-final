@@ -5,6 +5,7 @@ from .models import Quiz, Question, Choice, QuizAttempt, Assignment, AssignmentS
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
     list_display = ('title', 'module')
+    list_filter = ('module__course', 'module')
     search_fields = ('title', 'module__title')
 
 

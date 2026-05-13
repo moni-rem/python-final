@@ -1,29 +1,133 @@
 {% extends 'base.html' %}
 {% block title %}My Progress - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row">
+<div class="row mb-4">
     <div class="col-12">
-        <h1>Learning Progress</h1>
-        <p>Track your courses and completed lessons.</p>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                    <div>
+                        <h1 class="display-6 fw-bold mb-2">Learning Progress</h1>
+                        <p class="lead mb-0">Track enrolled courses, completed lessons, quizzes, and assignments.</p>
+                    </div>
+                    <a class="btn btn-primary" href="{% url 'course_list' %}">
+                        <i class="fas fa-book-open me-2"></i>Browse Courses
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<div class="row">
-    {% if progress_entries %}
-        {% for progress in progress_entries %}
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Courses</h6>
+                <h2 class="mb-1">{{ summary.enrolled_courses }}</h2>
+                <p class="mb-0">Enrolled courses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Average</h6>
+                <h2 class="mb-1">{{ summary.overall_percent }}%</h2>
+                <p class="mb-0">Overall progress</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Lessons</h6>
+                <h2 class="mb-1">{{ summary.completed_lessons }}/{{ summary.total_lessons }}</h2>
+                <p class="mb-0">Lessons completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Finished</h6>
+                <h2 class="mb-1">{{ summary.completed_courses }}</h2>
+                <p class="mb-0">Completed courses</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% if progress_cards %}
+        {% for card in progress_cards %}
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm border-0">
                     <div class="card-body">
-                        <h5 class="card-title">{{ progress.course.title }}</h5>
-                        <p><strong>Completed Lessons:</strong> {{ progress.completed_lessons.count }}</p>
-                        <p><strong>Completed:</strong> {{ progress.is_completed|yesno:'Yes,No' }}</p>
-                        <p><strong>Last Accessed:</strong> {{ progress.last_accessed|date:'M d, Y H:i' }}</p>
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">{{ card.course.title }}</h5>
+                                <p class="text-muted mb-0">
+                                    Instructor: {{ card.course.instructor.username }} · Enrolled {{ card.enrolled_at|date:'M d, Y' }}
+                                </p>
+                            </div>
+                            {% if card.is_completed %}
+                                <span class="badge bg-success align-self-start">Completed</span>
+                            {% else %}
+                                <span class="badge bg-primary align-self-start">{{ card.overall_percent }}%</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="progress mb-4" role="progressbar" aria-label="{{ card.course.title }} overall progress" aria-valuenow="{{ card.overall_percent }}" aria-valuemin="0" aria-valuemax="100" style="height: 12px;">
+                            <div class="progress-bar bg-success" style="width: {{ card.overall_percent }}%"></div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>Lessons</strong>
+                                        <span class="text-muted">{{ card.lesson_percent }}%</span>
+                                    </div>
+                                    <div>{{ card.completed_lessons }}/{{ card.lesson_total }} complete</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>Quizzes</strong>
+                                        <span class="text-muted">{{ card.quiz_percent }}%</span>
+                                    </div>
+                                    <div>{{ card.quizzes_completed }}/{{ card.quizzes_total }} attempted</div>
+                                    {% if card.average_quiz_score != None %}
+                                        <small class="text-muted">Avg score {{ card.average_quiz_score|floatformat:1 }}%</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>Assignments</strong>
+                                        <span class="text-muted">{{ card.assignment_percent }}%</span>
+                                    </div>
+                                    <div>{{ card.assignments_submitted }}/{{ card.assignments_total }} submitted</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                            <small class="text-muted">Last accessed {{ card.progress.last_accessed|date:'M d, Y H:i' }}</small>
+                            <a class="btn btn-outline-primary btn-sm" href="{% url 'course_detail' card.course.pk %}">
+                                Continue Course
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
     {% else %}
         <div class="col-12">
-            <div class="alert alert-secondary">No progress has been recorded yet. Start a course to begin tracking.</div>
+            <div class="alert alert-secondary shadow-sm">No progress has been recorded yet. Enroll in a course to begin tracking.</div>
         </div>
     {% endif %}
 </div>

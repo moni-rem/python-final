@@ -3,9 +3,16 @@ from django.conf import settings
 from courses.models import Module, Course
 
 class Quiz(models.Model):
+    QUIZ_TYPE_CHOICES = (
+        ('multiple_choice', 'Multiple Choice Only'),
+        ('essay', 'Essay Only'),
+        ('mixed', 'Mixed (Multiple Choice & Essay)'),
+    )
+
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='quizzes')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
+    quiz_type = models.CharField(max_length=20, choices=QUIZ_TYPE_CHOICES, default='multiple_choice')
 
     def __str__(self):
         return f"Quiz: {self.title} ({self.module.title})"
@@ -28,7 +35,10 @@ class Choice(models.Model):
 class QuizAttempt(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='quiz_attempts')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
-    score = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    score = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, blank=True, null=True)
+    file_upload = models.FileField(upload_to='quiz_submissions/', blank=True, null=True)
+    text_response = models.TextField(blank=True, null=True)
+    feedback = models.TextField(blank=True, null=True)
     attempted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

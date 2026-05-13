@@ -1,27 +1,70 @@
 {% extends 'base.html' %}
 {% block title %}Login - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-xl-5 col-lg-6 col-md-8">
-        <div class="register-card shadow-lg border-0 rounded-4 overflow-hidden">
-            <div class="register-card-header text-center text-white py-5" style="background: linear-gradient(120deg, #4f46e5, #0ea5e9);">
-                <h1 class="h3 mb-2">Welcome Back</h1>
-                <p class="mb-0 opacity-75">Sign in to continue your learning journey.</p>
-            </div>
-            <div class="card-body p-5 bg-white">
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger mb-4">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-                <form method="post" class="register-form">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>
-                </form>
-                <div class="text-center mt-4">
-                    <span class="text-muted">Don't have an account?</span>
-                    <a href="{% url 'register' %}" class="text-primary fw-semibold">Register here</a>
+<div class="py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card border-0 shadow-lg overflow-hidden">
+                <div class="card-header bg-dark text-white text-center p-4">
+                    <span class="badge text-bg-warning mb-3">
+                        <i class="fas fa-graduation-cap me-2"></i>E-Learn
+                    </span>
+                    <h1 class="h3 fw-bold mb-2">Welcome back</h1>
+                    <p class="text-white-50 mb-0">Sign in to continue your learning journey.</p>
+                </div>
+
+                <div class="card-body p-4 p-lg-5">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" class="vstack gap-3" novalidate>
+                        {% csrf_token %}
+
+                        <div>
+                            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">Username</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" class="form-control" value="{{ form.username.value|default:'' }}" placeholder="Enter your username" autocomplete="username" required>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">Password</label>
+                                <a href="#" class="small text-decoration-none">Forgot password?</a>
+                            </div>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" class="form-control" placeholder="Enter your password" autocomplete="current-password" required>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                            <label class="form-check-label" for="rememberMe">Keep me signed in</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        </button>
+
+                        <div class="text-center border-top pt-3">
+                            <span class="text-muted">New to E-Learn?</span>
+                            <a href="{% url 'register' %}" class="fw-semibold text-decoration-none">Create an account</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

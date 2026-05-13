@@ -1,18 +1,155 @@
 {% extends 'base.html' %}
 {% block title %}Create Quiz - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="card-title">Create Quiz</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Create Quiz</button>
-                </form>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="card-header bg-gradient text-white py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h2 class="mb-0 fw-bold">
+                        <i class="fas fa-plus-circle me-2"></i>Create New Quiz
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-85">Set up a quiz for your course with the type you prefer</p>
+                </div>
+
+                <div class="card-body p-5">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Module Selection -->
+                        <div class="mb-4">
+                            <label for="{{ form.module.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-book me-2 text-primary"></i>Select Module
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-book"></i></span>
+                                {{ form.module }}
+                            </div>
+                            {% if form.module.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.module.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Choose the module where this quiz will be shown.</div>
+                        </div>
+
+                        <!-- Quiz Title -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-heading me-2 text-primary"></i>Quiz Title
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-heading"></i></span>
+                                {{ form.title }}
+                            </div>
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.title.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Quiz Description -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-align-left me-2 text-primary"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Provide instructions or context for your quiz.</div>
+                        </div>
+
+                        <!-- Quiz Type Selection -->
+                        <div class="mb-5">
+                            <label for="{{ form.quiz_type.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-cogs me-2 text-primary"></i>Quiz Type
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-question-circle"></i></span>
+                                {{ form.quiz_type }}
+                            </div>
+                            {% if form.quiz_type.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.quiz_type.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text mt-3">
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info-light p-3 rounded-3" style="background: #e7f3ff; border-left: 4px solid #2196F3;">
+                                            <strong>Multiple Choice Only</strong><br>
+                                            <small>Students answer QCM questions. Auto-graded.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info-light p-3 rounded-3" style="background: #f3e5ff; border-left: 4px solid #9C27B0;">
+                                            <strong>Essay Only</strong><br>
+                                            <small>Students write essays. Manual grading required.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-info-light p-3 rounded-3" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                                            <strong>Mixed (Multiple Choice & Essay)</strong><br>
+                                            <small>Combination of QCM and essay questions for comprehensive assessment.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                                <i class="fas fa-check-circle me-2"></i>Create Quiz
+                            </button>
+                            <a href="{% url 'quiz_list' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.form-control, .form-select {
+    border-color: #dee2e6;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.input-group-text {
+    border: 1px solid #dee2e6;
+    color: #667eea;
+    background-color: #f8f9fa;
+}
+
+.input-group > .form-control {
+    border-left: 0;
+}
+
+.input-group > .form-control:focus {
+    z-index: 3;
+}
+
+.card {
+    border-radius: 1rem;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+</style>
 {% endblock %}

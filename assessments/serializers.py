@@ -23,16 +23,19 @@ class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ['id', 'module', 'title', 'description', 'questions']
+        fields = ['id', 'module', 'title', 'description', 'quiz_type', 'questions']
 
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
     student = serializers.StringRelatedField(read_only=True)
     quiz = serializers.StringRelatedField(read_only=True)
+    quiz_id = serializers.PrimaryKeyRelatedField(
+        queryset=Quiz.objects.all(), source='quiz', write_only=True
+    )
 
     class Meta:
         model = QuizAttempt
-        fields = ['id', 'student', 'quiz', 'score', 'attempted_at']
+        fields = ['id', 'student', 'quiz', 'quiz_id', 'score', 'file_upload', 'text_response', 'feedback', 'attempted_at']
 
 
 class AssignmentSerializer(serializers.ModelSerializer):

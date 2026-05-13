@@ -1,28 +1,117 @@
 {% extends 'base.html' %}
 {% block title %}Quizzes - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h1>Quizzes</h1>
-        <p>Take a quiz to test your knowledge.</p>
-    </div>
-</div>
-<div class="row">
-    {% for quiz in quizzes %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ quiz.title }}</h5>
-                    <p class="card-text">{{ quiz.description|default:'No description provided.' }}</p>
-                    <p class="text-muted">Module: {{ quiz.module.title }}</p>
-                    <a class="btn btn-primary" href="{% url 'quiz_detail' quiz.pk %}">Start Quiz</a>
+<section class="card border-0 shadow-sm overflow-hidden mb-4">
+    <div class="card-body bg-dark text-white p-4 p-lg-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge text-bg-warning mb-3">
+                    <i class="fas fa-question-circle me-2"></i>Assessment Center
+                </span>
+                <h1 class="display-6 fw-bold mb-3">Quizzes</h1>
+                <p class="lead text-white-50 mb-0">
+                    Choose a module, review available quizzes, and test your understanding.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="border border-light border-opacity-25 rounded-3 p-3 d-inline-block text-center">
+                    <div class="h2 fw-bold mb-0">{{ modules|length }}</div>
+                    <small class="text-white-50">Modules Available</small>
                 </div>
             </div>
         </div>
-    {% empty %}
-        <div class="col-12">
-            <p>No quizzes are available.</p>
+    </div>
+</section>
+
+<section class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <form method="get" id="moduleFilterForm" class="row g-3 align-items-end">
+            <div class="col-lg-9">
+                <label for="moduleFilter" class="form-label fw-semibold">
+                    <i class="fas fa-layer-group me-2 text-primary"></i>Select Module
+                </label>
+                <select class="form-select form-select-lg" id="moduleFilter" name="module" onchange="this.form.submit()">
+                    <option value="">Choose a module to view quizzes</option>
+                    {% for module in modules %}
+                        <option value="{{ module.pk }}" {% if selected_module and selected_module.pk == module.pk %}selected{% endif %}>
+                            {{ module.course.title }} - {{ module.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-3">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="fas fa-filter me-2"></i>Load
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% if selected_module %}
+    <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                <div>
+                    <span class="badge text-bg-primary mb-2">{{ selected_module.course.title }}</span>
+                    <h2 class="h4 fw-bold mb-1">{{ selected_module.title }}</h2>
+                    <p class="text-muted mb-0">Quizzes for this module are listed below.</p>
+                </div>
+                <div class="text-md-end">
+                    <div class="h3 fw-bold mb-0">{{ quizzes|length }}</div>
+                    <small class="text-muted">Quizzes found</small>
+                </div>
+            </div>
         </div>
-    {% endfor %}
-</div>
+    </section>
+{% endif %}
+
+<section>
+    <div class="row g-4">
+        {% if selected_module %}
+            {% for quiz in quizzes %}
+                <div class="col-md-6 col-xl-4">
+                    <article class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                <span class="badge rounded-pill text-bg-warning p-3">
+                                    <i class="fas fa-question"></i>
+                                </span>
+                                <span class="badge text-bg-light border">{{ quiz.get_quiz_type_display }}</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">{{ quiz.title }}</h3>
+                            <p class="text-muted flex-grow-1">{{ quiz.description|default:'No description provided.'|truncatewords:24 }}</p>
+                            <div class="small text-muted mb-3">
+                                <i class="fas fa-layer-group me-2 text-primary"></i>{{ quiz.module.title }}
+                            </div>
+                            <a class="btn btn-primary w-100 mt-auto" href="{% url 'quiz_detail' quiz.pk %}">
+                                Start Quiz<i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center p-5">
+                            <i class="fas fa-circle-info display-5 text-primary mb-3"></i>
+                            <h3 class="h4 fw-bold mb-2">No quizzes in this module</h3>
+                            <p class="text-muted mb-0">Check another module or come back after your instructor adds quizzes.</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-5">
+                        <i class="fas fa-layer-group display-5 text-primary mb-3"></i>
+                        <h2 class="h4 fw-bold mb-2">Select a module</h2>
+                        <p class="text-muted mb-0">Use the dropdown above to load quizzes for a specific module.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

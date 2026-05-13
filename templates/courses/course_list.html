@@ -1,38 +1,118 @@
 {% extends 'base.html' %}
 {% block title %}Course Catalog - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row mb-5">
-    <div class="col-lg-8">
-        <h1 class="display-5">Course Catalog</h1>
-        <p class="lead">Explore our full course library and find the learning path that's right for you.</p>
-    </div>
-    <div class="col-lg-4 text-lg-end align-self-center">
-        <a class="btn btn-outline-secondary" href="{% url 'home' %}">Back to Home</a>
-    </div>
-</div>
-<div class="row">
-    {% for course in courses %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
-                {% if course.thumbnail %}
-                    <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ course.title }}</h5>
-                    <p class="card-text text-truncate">{{ course.description|truncatewords:22 }}</p>
-                    <p class="mb-1"><small class="text-muted">Category: {{ course.category.name }}</small></p>
-                    <p class="mb-3"><small class="text-muted">Instructor: {{ course.instructor.username }}</small></p>
-                    <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary">View Course</a>
-                </div>
-                <div class="card-footer bg-white border-top-0">
-                    <span class="badge bg-info text-dark">${{ course.price }}</span>
+<section class="card border-0 shadow-sm overflow-hidden mb-4">
+    <div class="card-body bg-dark text-white p-4 p-lg-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge text-bg-warning mb-3">
+                    <i class="fas fa-book-open me-2"></i>Course Catalog
+                </span>
+                <h1 class="display-5 fw-bold mb-3">Explore Courses</h1>
+                <p class="lead text-white-50 mb-0">
+                    Discover instructor-led courses, compare learning paths, and start building practical skills.
+                </p>
+            </div>
+            <div class="col-lg-4">
+                <div class="row g-3 text-center">
+                    <div class="col-6">
+                        <div class="border border-light border-opacity-25 rounded-3 p-3">
+                            <div class="h2 fw-bold mb-0">{{ courses|length }}</div>
+                            <small class="text-white-50">Courses</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border border-light border-opacity-25 rounded-3 p-3">
+                            <div class="h2 fw-bold mb-0">{{ module_count }}</div>
+                            <small class="text-white-50">Modules</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    {% empty %}
-        <div class="col-12">
-            <div class="alert alert-secondary">No courses are available yet.</div>
+    </div>
+</section>
+
+<section id="course-grid">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Available Courses</h2>
+            <p class="text-muted mb-0">Choose a course and continue into the full course details.</p>
         </div>
-    {% endfor %}
-</div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-home me-2"></i>Home
+            </a>
+            {% if user.is_authenticated and user.role == 'instructor' or user.is_staff or user.is_superuser %}
+                <a href="{% url 'create_course' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Course
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for course in courses %}
+            <div class="col-md-6 col-xl-4">
+                <article class="card h-100 border-0 shadow-sm overflow-hidden">
+                    <div class="position-relative ratio ratio-16x9 bg-light">
+                        {% if course.thumbnail %}
+                            <img src="{{ course.thumbnail.url }}" class="w-100 h-100 object-fit-cover" alt="{{ course.title }}">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100 bg-secondary-subtle text-secondary">
+                                <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                            </div>
+                        {% endif %}
+                        <div class="position-absolute top-0 start-0 p-3">
+                            <span class="badge text-bg-primary shadow-sm">
+                                {% if course.category %}{{ course.category.name }}{% else %}General{% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body d-flex flex-column p-4">
+                        <h3 class="h5 fw-bold mb-2">{{ course.title }}</h3>
+                        <p class="text-muted mb-4">{{ course.description|truncatewords:24 }}</p>
+
+                        <div class="mt-auto">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge text-bg-light border">
+                                    <i class="fas fa-layer-group me-1 text-primary"></i>{{ course.module_count }} modules
+                                </span>
+                                <span class="badge text-bg-light border">
+                                    <i class="fas fa-users me-1 text-primary"></i>{{ course.enrollment_count }} enrolled
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center text-muted small mb-2">
+                                <i class="fas fa-user-tie me-2 text-primary"></i>
+                                <span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div>
+                                <div class="small text-muted">Price</div>
+                                <div class="fw-bold">
+                                    {% if course.price == 0 %}Free{% else %}${{ course.price }}{% endif %}
+                                </div>
+                            </div>
+                            <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary">
+                                View<i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-secondary text-center py-5 shadow-sm">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4 class="fw-bold mb-2">No courses are available yet</h4>
+                    <p class="mb-0">Check back soon while instructors add new learning paths.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

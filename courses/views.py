@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Count
 
 from .models import Category, Course, Module, Lesson, Enrollment
 from .forms import CourseForm, ModuleForm, LessonForm
 from accounts.utils import instructor_required
 from accounts.permissions import IsInstructorOrReadOnly
+from interactions.models import UserProgress
 
 
 def home(request):
@@ -18,8 +20,18 @@ def home(request):
 
 
 def course_list(request):
-    courses = Course.objects.select_related('category', 'instructor').all()
-    return render(request, 'courses/course_list.html', {'courses': courses})
+    courses = (
+        Course.objects.select_related('category', 'instructor')
+        .annotate(
+            module_count=Count('modules', distinct=True),
+            enrollment_count=Count('enrollments', distinct=True),
+        )
+        .order_by('-created_at')
+    )
+    return render(request, 'courses/course_list.html', {
+        'courses': courses,
+        'module_count': Module.objects.count(),
+    })
 
 
 def course_detail(request, pk):
@@ -37,6 +49,7 @@ def course_detail(request, pk):
 def enroll_course(request, pk):
     course = get_object_or_404(Course, pk=pk)
     enrollment, created = Enrollment.objects.get_or_create(student=request.user, course=course)
+    UserProgress.objects.get_or_create(student=request.user, course=course)
     if created:
         messages.success(request, f'You are now enrolled in {course.title}.')
     else:
@@ -45,11 +58,28 @@ def enroll_course(request, pk):
 
 
 def module_detail(request, pk):
-    module = get_object_or_404(Module, pk=pk)
+    module = get_object_or_404(Module.objects.select_related('course'), pk=pk)
     lessons = module.lessons.all()
+    completed_lesson_ids = []
+    enrolled = False
+    lesson_percent = 0
+
+    if request.user.is_authenticated:
+        enrolled = Enrollment.objects.filter(student=request.user, course=module.course).exists()
+        progress = UserProgress.objects.filter(student=request.user, course=module.course).first()
+        if progress:
+            completed_lesson_ids = list(
+                progress.completed_lessons.filter(module=module).values_list('id', flat=True)
+            )
+            lesson_count = lessons.count()
+            lesson_percent = round((len(completed_lesson_ids) / lesson_count) * 100) if lesson_count else 0
+
     return render(request, 'courses/module_detail.html', {
         'module': module,
         'lessons': lessons,
+        'enrolled': enrolled,
+        'completed_lesson_ids': completed_lesson_ids,
+        'lesson_percent': lesson_percent,
     })
 
 

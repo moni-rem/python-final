@@ -2,31 +2,69 @@
 {% block title %}Submit Assignment - E-Learning Platform{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
-                <h2 class="card-title mb-4">Submit Assignment</h2>
-                <h5>{{ assignment.title }}</h5>
-                <p class="text-muted">Course: {{ assignment.course.title }}</p>
-                <p>{{ assignment.description }}</p>
-                <form method="post" enctype="multipart/form-data">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Submit Assignment</h2>
+                        <p class="text-muted mb-1">{{ assignment.title }}</p>
+                        <p class="mb-0"><small class="text-muted">Course: {{ assignment.course.title }}</small></p>
+                    </div>
+                    <div class="text-md-end">
+                        <p class="mb-0"><strong>Due:</strong> {{ assignment.due_date|date:'M d, Y H:i' }}</p>
+                    </div>
+                </div>
+                <div class="alert alert-info rounded-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You can submit a written response, upload a file, or do both depending on your instructor's requirements.
+                </div>
+                <p class="mb-4">{{ assignment.description }}</p>
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="text_submission" class="form-label">Text Submission</label>
-                        <textarea class="form-control" id="text_submission" name="text_submission" rows="5">{{ submission.text_submission|default:'' }}</textarea>
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm p-4 h-100">
+                                <h5 class="mb-3"><i class="fas fa-keyboard me-2"></i>Written Answer</h5>
+                                <div class="mb-3">
+                                    <label for="text_submission" class="form-label">Answer</label>
+                                    <textarea class="form-control" id="text_submission" name="text_submission" rows="8" placeholder="Write your answer or explanation here...">{{ submission.text_submission|default:'' }}</textarea>
+                                </div>
+                                <p class="text-muted small mb-0">Use this field for essay-style responses or detailed explanations.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm p-4 h-100">
+                                <h5 class="mb-3"><i class="fas fa-file-upload me-2"></i>File Upload</h5>
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Upload File</label>
+                                    <input class="form-control" type="file" id="file" name="file">
+                                </div>
+                                <p class="text-muted small mb-3">Upload documents, slides, images, or code files.</p>
+                                {% if submission and submission.file %}
+                                    <div class="alert alert-light border rounded-3">
+                                        <strong>Existing File:</strong>
+                                        <div><a href="{{ submission.file.url }}" target="_blank">{{ submission.file.name }}</a></div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="file" class="form-label">Upload File</label>
-                        <input class="form-control" type="file" id="file" name="file">
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Submission
+                        </button>
                     </div>
-                    <button type="submit" class="btn btn-success">Save Submission</button>
                 </form>
                 {% if submission %}
-                    <div class="mt-4">
-                        <h6>Last submission</h6>
-                        <p>Submitted at {{ submission.submitted_at|date:'M d, Y H:i' }}</p>
+                    <div class="mt-5 p-4 rounded-4 border bg-light">
+                        <h5 class="mb-3"><i class="fas fa-history me-2"></i>Last Submission</h5>
+                        <p class="mb-1">Submitted at <strong>{{ submission.submitted_at|date:'M d, Y H:i' }}</strong></p>
                         {% if submission.grade %}
-                            <p><strong>Grade:</strong> {{ submission.grade }}</p>
+                            <p class="mb-1"><strong>Grade:</strong> {{ submission.grade }}</p>
+                        {% endif %}
+                        {% if submission.feedback %}
+                            <p class="mb-0"><strong>Feedback:</strong> {{ submission.feedback }}</p>
                         {% endif %}
                     </div>
                 {% endif %}

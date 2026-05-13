@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,6 +50,41 @@ INSTALLED_APPS = [
     'assessments',
     'interactions',
 ]
+
+JAZZMIN_SETTINGS = {
+    'site_title': 'E-Learn Admin',
+    'site_header': 'E-Learn Administration',
+    'site_brand': 'E-Learn',
+    'welcome_sign': 'Welcome to E-Learn Admin',
+    'copyright': 'E-Learning Platform',
+    'search_model': ['accounts.CustomUser', 'courses.Course'],
+    'topmenu_links': [
+        {'name': 'Home', 'url': 'home', 'permissions': ['auth.view_user']},
+        {'name': 'Courses', 'url': 'course_list', 'permissions': ['courses.view_course']},
+        {'model': 'accounts.CustomUser'},
+    ],
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'icons': {
+        'accounts.CustomUser': 'fas fa-users',
+        'accounts.UserProfile': 'fas fa-id-card',
+        'courses.Category': 'fas fa-folder-open',
+        'courses.Course': 'fas fa-book-open',
+        'courses.Module': 'fas fa-layer-group',
+        'courses.Lesson': 'fas fa-chalkboard-teacher',
+        'courses.Enrollment': 'fas fa-user-graduate',
+        'assessments.Quiz': 'fas fa-question-circle',
+        'assessments.Question': 'fas fa-question',
+        'assessments.Choice': 'fas fa-tasks',
+        'assessments.QuizAttempt': 'fas fa-clipboard-check',
+        'assessments.Assignment': 'fas fa-file-alt',
+        'assessments.AssignmentSubmission': 'fas fa-file-upload',
+        'interactions.UserProgress': 'fas fa-chart-line',
+        'interactions.Discussion': 'fas fa-comments',
+        'interactions.Comment': 'fas fa-comment-dots',
+        'interactions.Certificate': 'fas fa-award',
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,7 +119,7 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'course_list'
+LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 WSGI_APPLICATION = 'core.wsgi.application'
 

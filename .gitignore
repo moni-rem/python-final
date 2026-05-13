@@ -39,3 +39,18 @@ htmlcov/
 .pytest_cache/
 nosetests.xml
 coverage.xml
+
+
+
+# Python scripts
+convert_sqlite_to_sqlserver.py
+generate_db_schema.py
+inspect_sqlite_schema.py
+
+# SQL files
+db_schema.sql
+db_schema_full.sql
+db_schema_sqlserver.sql
+
+# Utility file
+interactions/utils.py

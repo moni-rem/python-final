@@ -52,5 +52,3 @@ db_schema.sql
 db_schema_full.sql
 db_schema_sqlserver.sql
 
-# Utility file
-interactions/utils.py

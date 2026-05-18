@@ -42,6 +42,13 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+if not DEBUG and not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [
+        f'https://{host}'
+        for host in ALLOWED_HOSTS
+        if host not in ('*', '127.0.0.1', 'localhost') and not host.startswith('.')
+    ]
+
 
 # Application definition
 
@@ -218,8 +225,8 @@ CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', str(DEBUG)).lo
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ('1', 'true', 'yes', 'on')
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() in ('1', 'true', 'yes', 'on')
+    CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() in ('1', 'true', 'yes', 'on')
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 REST_FRAMEWORK = {

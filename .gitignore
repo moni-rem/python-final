@@ -49,3 +49,4 @@ db_schema_full.sql
 db_schema_sqlserver.sql
 
 
+.env.example

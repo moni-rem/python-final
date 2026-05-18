@@ -12,11 +12,19 @@ CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://www.your-domain.com
 CORS_ALLOW_ALL_ORIGINS=False
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB_NAME
 DB_SSL_REQUIRE=True
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
 ```
 
 `DATABASE_URL` should point to your hosted PostgreSQL database. If it is not set,
 the app falls back to the local `db.sqlite3` file, which is not reliable on most
 deployment platforms because the filesystem may be rebuilt or reset.
+
+If login fails with a CSRF error, make sure `CSRF_TRUSTED_ORIGINS` contains the
+full deployed origin, for example `https://your-app.onrender.com`. If your host
+terminates HTTPS before Django and session cookies are not being saved, confirm
+it forwards `X-Forwarded-Proto: https`; otherwise temporarily set
+`SESSION_COOKIE_SECURE=False` and `CSRF_COOKIE_SECURE=False` while debugging.
 
 ## Build command
 

@@ -1,232 +1,373 @@
 {% extends 'base.html' %}
 {% block title %}Profile - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-gradient text-white text-center py-4">
-                    <h2 class="mb-0"><i class="fas fa-user-circle me-2"></i>My Profile</h2>
-                    <p class="mb-0 mt-2">Manage your account information and preferences</p>
+<div class="profile-page py-4 py-lg-5">
+    <div class="profile-shell">
+        <div class="profile-heading">
+            <div>
+                <p class="eyebrow mb-2">Account settings</p>
+                <h1 class="mb-2">Profile</h1>
+                <p class="text-muted mb-0">Keep your learning identity, contact details, and public bio up to date.</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Dashboard
+            </a>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="profile-grid">
+            {% csrf_token %}
+
+            <aside class="profile-panel profile-summary-card">
+                <div class="avatar-wrap">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="Profile avatar" class="profile-avatar" id="avatar-preview">
+                    {% else %}
+                        <div class="profile-avatar profile-avatar-placeholder" id="avatar-preview">
+                            <span>{{ user.first_name|first|default:user.username|first|upper }}</span>
+                        </div>
+                    {% endif %}
                 </div>
-                <div class="card-body p-4">
-                    <div class="row">
-                        <!-- Profile Picture Section -->
-                        <div class="col-md-4 text-center mb-4">
-                            <div class="profile-avatar-container">
-                                {% if profile.avatar %}
-                                    <img src="{{ profile.avatar.url }}" alt="Profile Avatar" class="profile-avatar img-fluid rounded-circle shadow" id="avatar-preview">
-                                {% else %}
-                                    <div class="profile-avatar-placeholder rounded-circle shadow d-flex align-items-center justify-content-center bg-light" id="avatar-preview">
-                                        <i class="fas fa-user fa-4x text-secondary"></i>
-                                    </div>
-                                {% endif %}
-                                <div class="mt-3">
-                                    <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-camera me-1"></i>Change Photo
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Profile Form Section -->
-                        <div class="col-md-8">
-                            <form method="post" enctype="multipart/form-data" class="profile-form">
-                                {% csrf_token %}
+                <h2 class="mt-4 mb-1">{{ user.get_full_name|default:user.username }}</h2>
+                <p class="text-muted mb-3">{{ user.email|default:"No email added" }}</p>
+                <span class="role-pill">{{ user.get_role_display|default:user.role }}</span>
 
-                                <!-- Personal Information -->
-                                <div class="mb-4">
-                                    <h4 class="mb-3 text-primary"><i class="fas fa-id-card me-2"></i>Personal Information</h4>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-bold">
-                                                <i class="fas fa-user me-1"></i>First Name
-                                            </label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                                {{ form.first_name }}
-                                            </div>
-                                            {% if form.first_name.errors %}
-                                                <div class="text-danger small mt-1">
-                                                    {% for error in form.first_name.errors %}{{ error }}{% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-bold">
-                                                <i class="fas fa-user me-1"></i>Last Name
-                                            </label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                                {{ form.last_name }}
-                                            </div>
-                                            {% if form.last_name.errors %}
-                                                <div class="text-danger small mt-1">
-                                                    {% for error in form.last_name.errors %}{{ error }}{% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">
-                                            <i class="fas fa-envelope me-1"></i>Email Address
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                            {{ form.email }}
-                                        </div>
-                                        {% if form.email.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in form.email.errors %}{{ error }}{% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="{{ form.username.id_for_label }}" class="form-label fw-bold">
-                                            <i class="fas fa-at me-1"></i>Username
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-at"></i></span>
-                                            {{ form.username }}
-                                        </div>
-                                        {% if form.username.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in form.username.errors %}{{ error }}{% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="{{ form.role.id_for_label }}" class="form-label fw-bold">
-                                            <i class="fas fa-user-tag me-1"></i>Role
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                            {{ form.role }}
-                                        </div>
-                                        <div class="form-text">Contact an administrator to change your role.</div>
-                                        {% if form.role.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in form.role.errors %}{{ error }}{% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
+                <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary w-100 mt-4">
+                    <i class="fas fa-camera me-2"></i>Change photo
+                </label>
+                <div class="d-none">{{ form.avatar }}</div>
+                {% if form.avatar.errors %}
+                    <div class="text-danger small mt-2">
+                        {% for error in form.avatar.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
 
-                                <!-- About Section -->
-                                <div class="mb-4">
-                                    <h4 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>About You</h4>
-                                    <div class="mb-3">
-                                        <label for="{{ form.bio.id_for_label }}" class="form-label fw-bold">
-                                            <i class="fas fa-edit me-1"></i>Bio
-                                        </label>
-                                        {{ form.bio }}
-                                        <div class="form-text">Tell us a little about yourself. This will be visible to other users.</div>
-                                        {% if form.bio.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in form.bio.errors %}{{ error }}{% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <!-- Avatar Upload (Hidden but accessible) -->
-                                <div class="d-none">
-                                    {{ form.avatar }}
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
-                                    </a>
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-save me-2"></i>Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                <div class="profile-meta">
+                    <div>
+                        <span>Username</span>
+                        <strong>{{ user.username }}</strong>
+                    </div>
+                    <div>
+                        <span>Status</span>
+                        <strong>{% if user.is_active %}Active{% else %}Inactive{% endif %}</strong>
                     </div>
                 </div>
-            </div>
-        </div>
+            </aside>
+
+            <section class="profile-panel">
+                <div class="section-title">
+                    <div>
+                        <p class="eyebrow mb-1">Personal information</p>
+                        <h2>Basic details</h2>
+                    </div>
+                    <i class="fas fa-id-card"></i>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.first_name.errors %}{{ error }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.last_name.errors %}{{ error }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.email.errors %}{{ error }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
+                        {{ form.role }}
+                        <div class="form-text">Only administrators can change restricted roles.</div>
+                        {% if form.role.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.role.errors %}{{ error }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="section-title compact">
+                    <div>
+                        <p class="eyebrow mb-1">Public profile</p>
+                        <h2>About you</h2>
+                    </div>
+                    <i class="fas fa-pen-nib"></i>
+                </div>
+
+                <div>
+                    <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                    {{ form.bio }}
+                    <div class="form-text">Share a short introduction for instructors and classmates.</div>
+                    {% if form.bio.errors %}
+                        <div class="text-danger small mt-1">{% for error in form.bio.errors %}{{ error }}{% endfor %}</div>
+                    {% endif %}
+                </div>
+
+                <div class="profile-actions">
+                    <a href="{% url 'dashboard' %}" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save changes
+                    </button>
+                </div>
+            </section>
+        </form>
     </div>
 </div>
 
 <style>
-.profile-avatar-container {
-    position: relative;
+.profile-page {
+    min-height: calc(100vh - 70px);
 }
 
-.profile-avatar, .profile-avatar-placeholder {
-    width: 150px;
-    height: 150px;
+.profile-shell {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.profile-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-heading h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.eyebrow {
+    color: #0f766e;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.profile-panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    padding: 1.5rem;
+}
+
+.profile-summary-card {
+    position: sticky;
+    top: 92px;
+    text-align: center;
+}
+
+.avatar-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.profile-avatar {
+    width: 144px;
+    height: 144px;
+    border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 5px solid #fff;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
 }
 
 .profile-avatar-placeholder {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f172a, #0f766e);
+    color: #fff;
 }
 
-.card-header.bg-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.profile-avatar-placeholder span {
+    font-size: 3rem;
+    font-weight: 800;
 }
 
-.input-group-text {
-    background: #f8f9fa;
-    border-color: #dee2e6;
+.profile-summary-card h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
 }
 
-.form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+.role-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
-.btn-outline-primary:hover {
-    background-color: #667eea;
-    border-color: #667eea;
+.profile-meta {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+    display: grid;
+    gap: 0.85rem;
+    text-align: left;
 }
 
-.profile-form .form-label {
-    color: #495057;
-    margin-bottom: 0.5rem;
+.profile-meta div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
-@media (max-width: 768px) {
-    .profile-avatar, .profile-avatar-placeholder {
-        width: 120px;
-        height: 120px;
+.profile-meta span {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.profile-meta strong {
+    color: #0f172a;
+    font-size: 0.9rem;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.section-title.compact {
+    margin-bottom: 1rem;
+}
+
+.section-title h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.section-title > i {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #0f766e;
+}
+
+.profile-panel .form-label {
+    color: #334155;
+    font-size: 0.88rem;
+    font-weight: 800;
+}
+
+.profile-panel .form-control,
+.profile-panel .form-select {
+    min-height: 44px;
+    border-color: #cbd5e1;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.profile-panel textarea.form-control {
+    min-height: 150px;
+}
+
+.profile-panel .form-control:focus,
+.profile-panel .form-select:focus {
+    border-color: #0f766e;
+    box-shadow: 0 0 0 0.2rem rgba(15, 118, 110, 0.14);
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.profile-actions .btn,
+.profile-heading .btn,
+.profile-summary-card .btn {
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+@media (max-width: 991.98px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
     }
 
-    .card-header h2 {
-        font-size: 1.5rem;
+    .profile-summary-card {
+        position: static;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .profile-heading,
+    .profile-actions {
+        align-items: stretch;
+        flex-direction: column;
     }
 }
 </style>
 
 <script>
-// Avatar preview functionality
-document.getElementById('{{ form.avatar.id_for_label }}').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
+const avatarInput = document.getElementById('{{ form.avatar.id_for_label }}');
+if (avatarInput) {
+    avatarInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function(event) {
             const preview = document.getElementById('avatar-preview');
             if (preview.tagName === 'IMG') {
-                preview.src = e.target.result;
-            } else {
-                // Replace placeholder with image
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Profile Avatar';
-                img.className = 'profile-avatar img-fluid rounded-circle shadow';
-                img.id = 'avatar-preview';
-                preview.parentNode.replaceChild(img, preview);
+                preview.src = event.target.result;
+                return;
             }
+
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.alt = 'Profile avatar';
+            img.className = 'profile-avatar';
+            img.id = 'avatar-preview';
+            preview.parentNode.replaceChild(img, preview);
         };
         reader.readAsDataURL(file);
-    }
-});
+    });
+}
 </script>
 {% endblock %}

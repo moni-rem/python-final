@@ -53,6 +53,24 @@ class UserProfileUpdateForm(forms.ModelForm):
             self.fields['username'].initial = self.instance.user.username
             self.fields['role'].initial = self.instance.user.role
 
+        placeholders = {
+            'first_name': 'First name',
+            'last_name': 'Last name',
+            'email': 'you@example.com',
+            'username': 'Username',
+            'bio': 'Write a short introduction about your learning goals, interests, or experience.',
+        }
+
+        for name, field in self.fields.items():
+            css_class = 'form-select' if name == 'role' else 'form-control'
+            if name == 'avatar':
+                css_class = 'form-control'
+
+            field.widget.attrs.update({
+                'class': css_class,
+                'placeholder': placeholders.get(name, ''),
+            })
+
         # Disable role field for non-admin users
         if user and not (user.role == 'admin' or user.is_staff or user.is_superuser):
             self.fields['role'].disabled = True

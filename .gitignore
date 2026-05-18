@@ -19,8 +19,6 @@ ENV/
 db.sqlite3
 media/
 staticfiles/
-# if you build static files with collectstatic, ignore output dir
-/static/
 
 # IDE/editor
 .vscode/
@@ -40,8 +38,6 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
-
-
 # Python scripts
 convert_sqlite_to_sqlserver.py
 generate_db_schema.py
@@ -51,4 +47,5 @@ inspect_sqlite_schema.py
 db_schema.sql
 db_schema_full.sql
 db_schema_sqlserver.sql
+
 

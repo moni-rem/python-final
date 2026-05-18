@@ -1,211 +1,173 @@
 {% extends 'base.html' %}
 {% block title %}Welcome - E-Learning Platform{% endblock %}
+{% block body_class %}page-home{% endblock %}
+{% block content_wrapper_class %}home-page{% endblock %}
 {% block content %}
-<div class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
+<section class="home-hero">
+    <div class="home-hero__media" aria-hidden="true"></div>
+    <div class="container home-hero__content">
+        <div class="row align-items-center g-5">
             <div class="col-lg-7">
-                <h1 class="display-4 fw-bold mb-3">Learn Anytime, Anywhere.</h1>
-                <p class="lead mb-4">Discover expert-led courses, build your skills, and earn certificates that showcase your achievements in a dynamic learning environment.</p>
-                <div class="mt-4">
-                    <a href="{% url 'course_list' %}" class="btn btn-light btn-lg me-3"><i class="fas fa-search me-2"></i>Browse Courses</a>
-                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg"><i class="fas fa-user-plus me-2"></i>Create Account</a>
+                <span class="hero-kicker"><i class="fas fa-bolt me-2"></i>Online learning that keeps moving</span>
+                <h1>Build practical skills with courses, quizzes, and guided progress.</h1>
+                <p class="hero-copy">Explore instructor-led learning paths, track what you finish, join discussions, and earn certificates from one focused workspace.</p>
+                <div class="hero-actions">
+                    <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Browse Courses
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-chart-line me-2"></i>Open Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </a>
+                    {% endif %}
                 </div>
             </div>
-            <div class="col-lg-5 d-none d-lg-block">
-                <div class="text-center">
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" class="img-fluid rounded shadow" alt="Learning illustration" style="max-height: 400px;">
+            <div class="col-lg-5">
+                <div class="hero-panel">
+                    <div class="hero-panel__image">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="Students collaborating around laptops">
+                    </div>
+                    <div class="hero-panel__body">
+                        <div>
+                            <span class="mini-label">Current focus</span>
+                            <strong>Featured learning paths</strong>
+                        </div>
+                        <div class="hero-progress">
+                            <span class="hero-progress__bar"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="stats-section">
+<section class="home-stats">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3 mb-4">
-                <div class="h2 text-primary mb-2"><i class="fas fa-users"></i></div>
-                <div class="h4">10,000+</div>
-                <p class="text-muted">Active Learners</p>
+        <div class="stats-grid">
+            <div>
+                <i class="fas fa-users"></i>
+                <strong>10,000+</strong>
+                <span>Active learners</span>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="h2 text-success mb-2"><i class="fas fa-book"></i></div>
-                <div class="h4">500+</div>
-                <p class="text-muted">Courses Available</p>
+            <div>
+                <i class="fas fa-book-open"></i>
+                <strong>{{ featured_courses|length }}+</strong>
+                <span>Fresh courses</span>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="h2 text-warning mb-2"><i class="fas fa-trophy"></i></div>
-                <div class="h4">50,000+</div>
-                <p class="text-muted">Certificates Issued</p>
+            <div>
+                <i class="fas fa-award"></i>
+                <strong>50,000+</strong>
+                <span>Certificates issued</span>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="h2 text-info mb-2"><i class="fas fa-star"></i></div>
-                <div class="h4">4.8/5</div>
-                <p class="text-muted">Average Rating</p>
+            <div>
+                <i class="fas fa-star"></i>
+                <strong>4.8/5</strong>
+                <span>Learner rating</span>
             </div>
         </div>
     </div>
-</div>
-<div class="container my-5">
-    <div class="row align-items-end mb-4 g-3">
-        <div class="col-lg-8">
-            <span class="badge text-bg-primary mb-2">
-                <i class="fas fa-star me-1"></i>Featured Learning Paths
-            </span>
-            <h2 class="display-6 fw-bold mb-2">Featured Courses</h2>
-            <p class="text-muted lead mb-0">Hand-picked courses from our instructors to help you build practical skills faster.</p>
-        </div>
-        <div class="col-lg-4 text-lg-end">
+</section>
+
+<section class="home-section">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Featured Learning Paths</span>
+                <h2>Courses worth opening first</h2>
+                <p>New and practical courses from instructors across the platform.</p>
+            </div>
             <a href="{% url 'course_list' %}" class="btn btn-outline-primary">
-                View All Courses<i class="fas fa-arrow-right ms-2"></i>
+                View All<i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for course in featured_courses %}
+                <div class="col-md-6 col-xl-4">
+                    <article class="course-card">
+                        <a href="{% url 'course_detail' course.pk %}" class="course-card__media">
+                            {% if course.thumbnail %}
+                                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                            {% else %}
+                                <div class="course-card__placeholder">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                            {% endif %}
+                            <span>{% if course.category %}{{ course.category.name }}{% else %}General{% endif %}</span>
+                        </a>
+                        <div class="course-card__body">
+                            <div class="course-meta">
+                                <small><i class="fas fa-user-tie me-1"></i>{{ course.instructor.get_full_name|default:course.instructor.username }}</small>
+                                <strong>{% if course.price == 0 %}Free{% else %}${{ course.price }}{% endif %}</strong>
+                            </div>
+                            <h3>{{ course.title }}</h3>
+                            <p>{{ course.description|truncatewords:22 }}</p>
+                            <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary w-100">
+                                View Course<i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No featured courses yet</h3>
+                        <p>Courses added by instructors will appear here.</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="home-section home-section--muted">
+    <div class="container">
+        <div class="section-heading section-heading--center">
+            <div>
+                <span class="section-kicker">Explore Topics</span>
+                <h2>Browse by category</h2>
+                <p>Find the area that matches your next goal.</p>
+            </div>
+        </div>
+        <div class="category-grid">
+            {% for category in categories %}
+                <a href="{% url 'course_list' %}?category={{ category.pk }}" class="category-tile">
+                    <span><i class="fas fa-folder-open"></i></span>
+                    <div>
+                        <h3>{{ category.name }}</h3>
+                        <p>{{ category.description|truncatewords:18|default:"Explore courses in this topic." }}</p>
+                    </div>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-folder"></i>
+                    <h3>No categories yet</h3>
+                    <p>Categories will be added soon.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="home-section">
+    <div class="container">
+        <div class="learning-strip">
+            <div>
+                <span class="section-kicker">Start Learning</span>
+                <h2>Ready to move your skills forward?</h2>
+                <p>Open the catalog, pick a course, and continue from your dashboard whenever you come back.</p>
+            </div>
+            <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'register' %}{% endif %}" class="btn btn-light btn-lg">
+                <i class="fas fa-rocket me-2"></i>{% if user.is_authenticated %}Go to Dashboard{% else %}Get Started{% endif %}
             </a>
         </div>
     </div>
-
-    <div class="row g-4 mb-5">
-        {% for course in featured_courses %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                    <div class="position-relative ratio ratio-16x9 bg-light">
-                        {% if course.thumbnail %}
-                            <img src="{{ course.thumbnail.url }}" class="w-100 h-100 object-fit-cover" alt="{{ course.title }}">
-                        {% else %}
-                            <div class="d-flex align-items-center justify-content-center bg-secondary-subtle text-secondary">
-                                <i class="fas fa-chalkboard-teacher fa-3x"></i>
-                            </div>
-                        {% endif %}
-                        <div class="position-absolute top-0 start-0 p-3">
-                            <span class="badge text-bg-primary shadow-sm">
-                                {% if course.category %}{{ course.category.name }}{% else %}General{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-body d-flex flex-column p-4">
-                        <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
-                            <small class="text-muted">
-                                <i class="fas fa-user-tie me-1"></i>{{ course.instructor.get_full_name|default:course.instructor.username }}
-                            </small>
-                            <span class="badge text-bg-light border">${{ course.price }}</span>
-                        </div>
-                        <h5 class="card-title fw-bold mb-2">{{ course.title }}</h5>
-                        <p class="card-text text-muted flex-grow-1">{{ course.description|truncatewords:22 }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <small class="text-muted">
-                                <i class="fas fa-calendar-days me-1"></i>{{ course.created_at|date:'M d, Y' }}
-                            </small>
-                            <span class="badge text-bg-warning">Featured</span>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white border-0 px-4 pb-4 pt-0">
-                        <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary w-100">
-                            <i class="fas fa-eye me-2"></i>View Course
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <div class="col-12">
-                <div class="alert alert-secondary text-center py-5">
-                    <i class="fas fa-info-circle fa-2x mb-3"></i>
-                    <h5>No featured courses available yet</h5>
-                    <p>Check back soon for our latest offerings!</p>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-
-    <div class="row">
-        <div class="col-12 text-center mb-4">
-            <h2 class="display-5 fw-bold">Browse by Category</h2>
-            <p class="text-muted lead">Explore courses in your area of interest.</p>
-        </div>
-        {% for category in categories %}
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100 text-center">
-                    <div class="card-body d-flex flex-column">
-                        <div class="mb-3">
-                            <i class="fas fa-folder-open fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title">{{ category.name }}</h5>
-                        <p class="card-text text-muted flex-grow-1">{{ category.description|truncatewords:20 }}</p>
-                        <a href="{% url 'course_list' %}?category={{ category.pk }}" class="btn btn-outline-primary mt-auto"><i class="fas fa-arrow-right me-2"></i>Explore</a>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <div class="col-12">
-                <div class="alert alert-secondary text-center">
-                    <i class="fas fa-folder fa-2x mb-3"></i>
-                    <h5>No categories available yet</h5>
-                    <p>Categories will be added soon!</p>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-
-<div class="testimonial-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold">What Our Learners Say</h2>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-quote-left fa-2x text-primary"></i>
-                        </div>
-                        <p class="card-text">"This platform has transformed my learning experience. The courses are engaging and the instructors are top-notch."</p>
-                        <div class="mt-3">
-                            <strong>Sarah Johnson</strong><br>
-                            <small class="text-muted">Software Developer</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-quote-left fa-2x text-primary"></i>
-                        </div>
-                        <p class="card-text">"Flexible learning at its best. I can study whenever I want, and the quality is exceptional."</p>
-                        <div class="mt-3">
-                            <strong>Michael Chen</strong><br>
-                            <small class="text-muted">Data Analyst</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-quote-left fa-2x text-primary"></i>
-                        </div>
-                        <p class="card-text">"The certificates I earned here helped me land my dream job. Highly recommended!"</p>
-                        <div class="mt-3">
-                            <strong>Emily Davis</strong><br>
-                            <small class="text-muted">Marketing Manager</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container my-5">
-    <div class="row">
-        <div class="col-12 text-center">
-            <div class="bg-primary text-white rounded p-5">
-                <h2 class="display-5 fw-bold mb-3">Ready to Start Learning?</h2>
-                <p class="lead mb-4">Join thousands of learners who are already advancing their careers with our platform.</p>
-                <a href="{% url 'register' %}" class="btn btn-light btn-lg"><i class="fas fa-rocket me-2"></i>Get Started Today</a>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 {% endblock %}

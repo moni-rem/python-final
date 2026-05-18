@@ -12,13 +12,15 @@ CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://www.your-domain.com
 CORS_ALLOW_ALL_ORIGINS=False
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB_NAME
 DB_SSL_REQUIRE=True
+REQUIRE_DATABASE_URL=True
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
 ```
 
 `DATABASE_URL` should point to your hosted PostgreSQL database. If it is not set,
-the app falls back to the local `db.sqlite3` file, which is not reliable on most
-deployment platforms because the filesystem may be rebuilt or reset.
+the app can also use `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT`.
+Set `REQUIRE_DATABASE_URL=True` on production if you want the app to fail clearly
+when the hosted database is missing instead of falling back to local SQLite.
 
 If login fails with a CSRF error, make sure `CSRF_TRUSTED_ORIGINS` contains the
 full deployed origin, for example `https://your-app.onrender.com`. If your host

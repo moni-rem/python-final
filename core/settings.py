@@ -14,6 +14,8 @@ import os
 from importlib.util import find_spec
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -153,6 +155,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
+DB_NAME = os.environ.get('DB_NAME')
 
 if DATABASE_URL:
     import dj_database_url
@@ -164,6 +167,24 @@ if DATABASE_URL:
             ssl_require=os.environ.get('DB_SSL_REQUIRE', 'True').lower() in ('1', 'true', 'yes', 'on'),
         )
     }
+elif DB_NAME:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': DB_NAME,
+            'USER': os.environ.get('DB_USER', ''),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', ''),
+            'PORT': os.environ.get('DB_PORT', ''),
+        }
+    }
+
+    if os.environ.get('DB_SSL_REQUIRE', 'True').lower() in ('1', 'true', 'yes', 'on'):
+        DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
+elif os.environ.get('REQUIRE_DATABASE_URL', 'False').lower() in ('1', 'true', 'yes', 'on'):
+    raise ImproperlyConfigured(
+        'Production database is not configured. Set DATABASE_URL, or set DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, and DB_PORT.'
+    )
 else:
     DATABASES = {
         'default': {

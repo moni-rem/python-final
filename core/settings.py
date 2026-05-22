@@ -248,7 +248,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 staticfiles_storage = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 if not DEBUG and find_spec('whitenoise'):
-    staticfiles_storage = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    staticfiles_storage = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STORAGES = {
     'default': {

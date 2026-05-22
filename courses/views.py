@@ -102,6 +102,15 @@ def create_course(request):
 
 @login_required
 @instructor_required
+def api_create_course_form(request):
+    categories = Category.objects.order_by('name')
+    return render(request, 'courses/api_create_course.html', {
+        'categories': categories,
+    })
+
+
+@login_required
+@instructor_required
 def create_module(request):
     if request.method == 'POST':
         form = ModuleForm(request.POST)

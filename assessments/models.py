@@ -4,7 +4,7 @@ from courses.models import Module, Course
 
 class Quiz(models.Model):
     QUIZ_TYPE_CHOICES = (
-        ('multiple_choice', 'Multiple Choice Only'),
+        # ('multiple_choice', 'Multiple Choice Only'),
         ('essay', 'Essay Only'),
         ('mixed', 'Mixed (Multiple Choice & Essay)'),
     )

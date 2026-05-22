@@ -36,6 +36,17 @@ python manage.py collectstatic --noinput
 python manage.py migrate
 ```
 
+If the home page shows "No featured courses yet", the hosted database is empty.
+Create courses from the admin/instructor pages, import your local data, or seed
+starter content:
+
+```bash
+python manage.py seed_demo_data
+```
+
+The seed command creates a demo instructor named `demo_instructor`. Change its
+password in the admin before using it on a public site.
+
 ## Start command
 
 ```bash

@@ -7,7 +7,14 @@ from .models import CustomUser, UserProfile
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'first_name', 'last_name', 'role']
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'student'
+        if commit:
+            user.save()
+        return user
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Course With API</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <main>
+    <h2>Create Course With API</h2>
+
+    <form id="courseForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div>
+            <label for="courseTitle">Course Title</label>
+            <input type="text" id="courseTitle" required>
+        </div>
+
+        <div>
+            <label for="courseDescription">Description</label>
+            <textarea id="courseDescription" rows="4" required></textarea>
+        </div>
+
+        <div>
+            <label for="courseCategory">Category</label>
+            <select id="courseCategory" required>
+                <option value="">Select category</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="coursePrice">Price</label>
+            <input type="number" id="coursePrice" step="0.01" min="0" value="0.00" required>
+        </div>
+
+        <div>
+            <label for="courseThumbnail">Thumbnail</label>
+            <input type="file" id="courseThumbnail" accept="image/*">
+        </div>
+
+        <button type="submit">Save Course</button>
+    </form>
+
+    <div id="msg"></div>
+    </main>
+
+    <script>
+    const COURSE_API = "/api/courses/";
+
+    function getCookie(name) {
+        let cookieValue = null;
+
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+    document.getElementById("courseForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("title", document.getElementById("courseTitle").value);
+        formData.append("description", document.getElementById("courseDescription").value);
+        formData.append("category", document.getElementById("courseCategory").value);
+        formData.append("price", document.getElementById("coursePrice").value);
+
+        const thumbnailFile = document.getElementById("courseThumbnail").files[0];
+        if (thumbnailFile) {
+            formData.append("thumbnail", thumbnailFile);
+        }
+
+        try {
+            const response = await fetch(COURSE_API, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById("msg").textContent = "Course created successfully!";
+                document.getElementById("courseForm").reset();
+            } else {
+                document.getElementById("msg").textContent = JSON.stringify(data);
+            }
+        } catch (error) {
+            document.getElementById("msg").textContent = "Error: " + error;
+        }
+    });
+    </script>
+</body>
+</html>

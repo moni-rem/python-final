@@ -170,7 +170,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_URL', '').strip().strip('"').strip("'")
+if DATABASE_URL.startswith('DATABASE_URL='):
+    DATABASE_URL = DATABASE_URL.split('=', 1)[1].strip().strip('"').strip("'")
+if DATABASE_URL.startswith('://'):
+    DATABASE_URL = f'postgresql{DATABASE_URL}'
 DB_NAME = os.environ.get('DB_NAME')
 
 if DATABASE_URL:

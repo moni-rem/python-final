@@ -11,6 +11,7 @@ ENV/
 .venv/
 
 # Django
+.env
 *.log
 *.pot
 *.pyc

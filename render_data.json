@@ -1,0 +1,821 @@
+[
+  {
+    "model": "accounts.customuser",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$map06TcTA00hC56z7EZUKh$TdCtJIL7bQ61s4O6aJpFRJnXIcuVB4MWu9ZhKRUfR+g=",
+      "last_login": "2026-05-23 05:51:54.403994",
+      "is_superuser": 1,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "admin@gmail.com",
+      "is_staff": 1,
+      "is_active": 1,
+      "date_joined": "2026-04-27 15:23:33",
+      "role": "admin"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$e8dwbq0ycHrbL7VF8F79yS$o7OLoVwL5qBRpds2easvHp43f6WEGM0J8gj6mxDTEP0=",
+      "last_login": "2026-04-27 15:50:35.817507",
+      "is_superuser": 0,
+      "username": "mony",
+      "first_name": "Mony",
+      "last_name": "Ny",
+      "email": "remphearomthunmony@gmail.com",
+      "is_staff": 0,
+      "is_active": 1,
+      "date_joined": "2026-04-27 15:50:34.983128",
+      "role": "instructor"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$JKHqRxGJdhx0AMkDTOcToP$rahTDE24IH3R1NE9H7661OaNKsYsWWY8CPFoS5wabYU=",
+      "last_login": "2026-05-18 11:59:05.739150",
+      "is_superuser": 0,
+      "username": "mony11",
+      "first_name": "Mony",
+      "last_name": "Ny",
+      "email": "mony@gmail.com",
+      "is_staff": 0,
+      "is_active": 1,
+      "date_joined": "2026-04-27 15:55:24.201564",
+      "role": "student"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$wRAY9MoBfd2Zks4gMlZdcX$/iNSyypXfZkTP5dtrwn8Z27CzI687jp6O39oigPzWus=",
+      "last_login": "2026-05-19 03:25:31.140313",
+      "is_superuser": 0,
+      "username": "cc",
+      "first_name": "cc",
+      "last_name": "dd",
+      "email": "cc@gmail.com",
+      "is_staff": 0,
+      "is_active": 1,
+      "date_joined": "2026-04-27 16:18:43",
+      "role": "instructor"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 5,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$5G7V65ZiYHRMaEmcThEka0$MMYbCkNDom1ZDh436L6JQuMSWZ0FhzrUL02UojzWreY=",
+      "last_login": "2026-05-23 05:50:08.995411",
+      "is_superuser": 0,
+      "username": "sam",
+      "first_name": "sam",
+      "last_name": "sam",
+      "email": "sam@gmail.com",
+      "is_staff": 0,
+      "is_active": 1,
+      "date_joined": "2026-04-28 01:49:07.782542",
+      "role": "student"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 6,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$dlWEmaUxR3ZTQ0iSND3ELf$nFzL4kFBEUxrq7MnACcAiwFv+ii7xBKmV4TOhZnUP8Y=",
+      "last_login": "2026-05-18 13:20:33.881724",
+      "is_superuser": 1,
+      "username": "monyz",
+      "first_name": "Mony",
+      "last_name": "Ny",
+      "email": "remphearomthunmony@gmail.com",
+      "is_staff": 1,
+      "is_active": 1,
+      "date_joined": "2026-05-18 13:04:43",
+      "role": "student"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 7,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$RpTqUxUzOgjXxVNFlT1Txc$9COK2ckyXnLW2FjBJVO2cWHXhWw13akwhKgPLmCIYPo=",
+      "last_login": null,
+      "is_superuser": 1,
+      "username": "ny",
+      "first_name": "",
+      "last_name": "",
+      "email": "ny@gmail.com",
+      "is_staff": 1,
+      "is_active": 1,
+      "date_joined": "2026-05-22 17:25:42.043677",
+      "role": "student"
+    }
+  },
+  {
+    "model": "accounts.customuser",
+    "pk": 8,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$VfTVITyhwzSk5yBadJ6A5P$ibNJKc0JkI7K8uewzZ0pCHcJdfSvn56Aopmj8/gjZWI=",
+      "last_login": null,
+      "is_superuser": 0,
+      "username": "demo_instructor",
+      "first_name": "Demo",
+      "last_name": "Instructor",
+      "email": "instructor@example.com",
+      "is_staff": 1,
+      "is_active": 1,
+      "date_joined": "2026-05-22 18:02:55.501763",
+      "role": "instructor"
+    }
+  },
+  {
+    "model": "accounts.userprofile",
+    "pk": 1,
+    "fields": {
+      "bio": "",
+      "avatar": "avatars/Screenshot_2026-04-01_210725.png",
+      "user": 1
+    }
+  },
+  {
+    "model": "accounts.userprofile",
+    "pk": 2,
+    "fields": {
+      "bio": null,
+      "avatar": "",
+      "user": 2
+    }
+  },
+  {
+    "model": "accounts.userprofile",
+    "pk": 3,
+    "fields": {
+      "bio": null,
+      "avatar": "",
+      "user": 3
+    }
+  },
+  {
+    "model": "accounts.userprofile",
+    "pk": 4,
+    "fields": {
+      "bio": null,
+      "avatar": "",
+      "user": 4
+    }
+  },
+  {
+    "model": "accounts.userprofile",
+    "pk": 5,
+    "fields": {
+      "bio": "Name is sunjae",
+      "avatar": "avatars/sunjea.webp",
+      "user": 5
+    }
+  },
+  {
+    "model": "courses.category",
+    "pk": 1,
+    "fields": {
+      "name": "science",
+      "description": ""
+    }
+  },
+  {
+    "model": "courses.category",
+    "pk": 2,
+    "fields": {
+      "name": "History",
+      "description": "learn about all the history"
+    }
+  },
+  {
+    "model": "courses.category",
+    "pk": 3,
+    "fields": {
+      "name": "Design",
+      "description": "UI and UX courses"
+    }
+  },
+  {
+    "model": "courses.category",
+    "pk": 4,
+    "fields": {
+      "name": "Web Development",
+      "description": "Build practical websites and web applications."
+    }
+  },
+  {
+    "model": "courses.category",
+    "pk": 5,
+    "fields": {
+      "name": "Programming",
+      "description": "Sharpen programming skills with hands-on lessons."
+    }
+  },
+  {
+    "model": "courses.category",
+    "pk": 6,
+    "fields": {
+      "name": "Data Skills",
+      "description": "Explore data analysis, reporting, and dashboards."
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 1,
+    "fields": {
+      "title": "hsitory",
+      "description": "history about universe",
+      "price": 2,
+      "thumbnail": "course_thumbnails/history.jpg",
+      "created_at": "2026-04-27 16:20:30.516375",
+      "updated_at": "2026-05-18 11:54:33.020936",
+      "category": 2,
+      "instructor": 4
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 3,
+    "fields": {
+      "title": "math",
+      "description": "involve all math question to prepare for bacii",
+      "price": 12,
+      "thumbnail": "course_thumbnails/math.jpg",
+      "created_at": "2026-05-12 01:59:54.348203",
+      "updated_at": "2026-05-18 11:53:27.492108",
+      "category": 1,
+      "instructor": 4
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 4,
+    "fields": {
+      "title": "chinese HSK1",
+      "description": "basic chinese",
+      "price": 12,
+      "thumbnail": "course_thumbnails/chinese.jpg",
+      "created_at": "2026-05-18 11:42:59.816085",
+      "updated_at": "2026-05-18 11:42:59.816118",
+      "category": 1,
+      "instructor": 1
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 5,
+    "fields": {
+      "title": "computer science",
+      "description": "learn about stem",
+      "price": 250,
+      "thumbnail": "course_thumbnails/compute.jpg",
+      "created_at": "2026-05-18 11:48:09.297405",
+      "updated_at": "2026-05-18 11:48:09.297449",
+      "category": 1,
+      "instructor": 1
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 6,
+    "fields": {
+      "title": "data science",
+      "description": "learn about all the data that involve in your life",
+      "price": 120,
+      "thumbnail": "course_thumbnails/dataScience.jpg",
+      "created_at": "2026-05-18 11:51:09.011770",
+      "updated_at": "2026-05-18 11:51:09.011806",
+      "category": 1,
+      "instructor": 4
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 7,
+    "fields": {
+      "title": "biology",
+      "description": "learn about all the life on the earth",
+      "price": 25,
+      "thumbnail": "course_thumbnails/biology.jpg",
+      "created_at": "2026-05-18 12:06:47.429627",
+      "updated_at": "2026-05-18 12:06:47.429666",
+      "category": 1,
+      "instructor": 4
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 8,
+    "fields": {
+      "title": "Python Django",
+      "description": "Learn Django REST API",
+      "price": 29.99,
+      "thumbnail": "course_thumbnails/we_j00Wwse.jpg",
+      "created_at": "2026-05-19 01:44:41.109209",
+      "updated_at": "2026-05-19 02:24:15.845579",
+      "category": 1,
+      "instructor": 6
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 9,
+    "fields": {
+      "title": "computer",
+      "description": "Learn  REST API",
+      "price": 29.99,
+      "thumbnail": "course_thumbnails/python.jpg",
+      "created_at": "2026-05-19 01:48:52.707537",
+      "updated_at": "2026-05-19 02:23:41.329401",
+      "category": 1,
+      "instructor": 6
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 10,
+    "fields": {
+      "title": "Django Foundations",
+      "description": "Learn Django models, views, templates, authentication, and deployment basics through a practical course project.",
+      "price": 0,
+      "thumbnail": "",
+      "created_at": "2026-05-22 18:02:56.021328",
+      "updated_at": "2026-05-22 18:02:56.021350",
+      "category": 4,
+      "instructor": 8
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 11,
+    "fields": {
+      "title": "Python for Problem Solving",
+      "description": "Practice core Python syntax, functions, data structures, and small problem-solving workflows for beginners.",
+      "price": 0,
+      "thumbnail": "",
+      "created_at": "2026-05-22 18:02:56.066292",
+      "updated_at": "2026-05-22 18:02:56.066305",
+      "category": 5,
+      "instructor": 8
+    }
+  },
+  {
+    "model": "courses.course",
+    "pk": 12,
+    "fields": {
+      "title": "Data Analysis Essentials",
+      "description": "Get comfortable cleaning data, asking useful questions, and presenting insights clearly.",
+      "price": 19,
+      "thumbnail": "",
+      "created_at": "2026-05-22 18:02:56.110309",
+      "updated_at": "2026-05-22 18:02:56.110323",
+      "category": 6,
+      "instructor": 8
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 1,
+    "fields": {
+      "title": "lesson1",
+      "order": 23,
+      "course": 1
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 3,
+    "fields": {
+      "title": "programmer",
+      "order": 120,
+      "course": 5
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 4,
+    "fields": {
+      "title": "matric",
+      "order": 12,
+      "course": 6
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 5,
+    "fields": {
+      "title": "plasma",
+      "order": 12,
+      "course": 7
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 6,
+    "fields": {
+      "title": "Getting Started",
+      "order": 1,
+      "course": 10
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 7,
+    "fields": {
+      "title": "Building Features",
+      "order": 2,
+      "course": 10
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 8,
+    "fields": {
+      "title": "Python Basics",
+      "order": 1,
+      "course": 11
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 9,
+    "fields": {
+      "title": "Useful Patterns",
+      "order": 2,
+      "course": 11
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 10,
+    "fields": {
+      "title": "Data Thinking",
+      "order": 1,
+      "course": 12
+    }
+  },
+  {
+    "model": "courses.module",
+    "pk": 11,
+    "fields": {
+      "title": "Analysis Practice",
+      "order": 2,
+      "course": 12
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 1,
+    "fields": {
+      "title": "Neuron",
+      "content": "research how many veil in neurou",
+      "video_url": "https://www.youtube.com/watch?v=11-8ecpwOXs",
+      "video_file": "lesson_videos/sunjea.webp",
+      "pdf_attachment": "",
+      "order": 0,
+      "module": 1
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 2,
+    "fields": {
+      "title": "lalalaa",
+      "content": "la sa na ma da",
+      "video_url": "https://www.youtube.com/watch?v=11-8ecpwOXs",
+      "video_file": "",
+      "pdf_attachment": "lesson_pdfs/cv.pdf",
+      "order": 10,
+      "module": 1
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 3,
+    "fields": {
+      "title": "life on earth",
+      "content": "take a note",
+      "video_url": "https://www.youtube.com/watch?v=11-8ecpwOXs",
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 12,
+      "module": 5
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 4,
+    "fields": {
+      "title": "rtt",
+      "content": "rrrr",
+      "video_url": "https://www.youtube.com/watch?v=11-8ecpwOXs",
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 12,
+      "module": 4
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 5,
+    "fields": {
+      "title": "data science",
+      "content": "etrew",
+      "video_url": "https://youtu.be/RBSUwFGa6Fk?si=hqhxgVCiysKUdr_1",
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 0,
+      "module": 4
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 6,
+    "fields": {
+      "title": "Project setup",
+      "content": "Introductory material for Project setup.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 1,
+      "module": 6
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 7,
+    "fields": {
+      "title": "Django apps and routing",
+      "content": "Introductory material for Django apps and routing.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 2,
+      "module": 6
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 8,
+    "fields": {
+      "title": "Models and migrations",
+      "content": "Introductory material for Models and migrations.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 1,
+      "module": 7
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 9,
+    "fields": {
+      "title": "Templates and forms",
+      "content": "Introductory material for Templates and forms.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 2,
+      "module": 7
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 10,
+    "fields": {
+      "title": "Variables and types",
+      "content": "Introductory material for Variables and types.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 1,
+      "module": 8
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 11,
+    "fields": {
+      "title": "Control flow",
+      "content": "Introductory material for Control flow.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 2,
+      "module": 8
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 12,
+    "fields": {
+      "title": "Functions",
+      "content": "Introductory material for Functions.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 1,
+      "module": 9
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 13,
+    "fields": {
+      "title": "Lists and dictionaries",
+      "content": "Introductory material for Lists and dictionaries.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 2,
+      "module": 9
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 14,
+    "fields": {
+      "title": "Understanding datasets",
+      "content": "Introductory material for Understanding datasets.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 1,
+      "module": 10
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 15,
+    "fields": {
+      "title": "Asking better questions",
+      "content": "Introductory material for Asking better questions.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 2,
+      "module": 10
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 16,
+    "fields": {
+      "title": "Cleaning records",
+      "content": "Introductory material for Cleaning records.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 1,
+      "module": 11
+    }
+  },
+  {
+    "model": "courses.lesson",
+    "pk": 17,
+    "fields": {
+      "title": "Summarizing results",
+      "content": "Introductory material for Summarizing results.",
+      "video_url": null,
+      "video_file": "",
+      "pdf_attachment": "",
+      "order": 2,
+      "module": 11
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 1,
+    "fields": {
+      "enrolled_at": "2026-04-27 16:20:59.827337",
+      "course": 1,
+      "student": 1
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 3,
+    "fields": {
+      "enrolled_at": "2026-05-06 08:26:23.825553",
+      "course": 1,
+      "student": 5
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 5,
+    "fields": {
+      "enrolled_at": "2026-05-12 00:25:43.447412",
+      "course": 1,
+      "student": 4
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 6,
+    "fields": {
+      "enrolled_at": "2026-05-18 11:49:47.399937",
+      "course": 5,
+      "student": 4
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 7,
+    "fields": {
+      "enrolled_at": "2026-05-18 11:59:19.471636",
+      "course": 6,
+      "student": 3
+    }
+  },
+  {
+    "model": "courses.enrollment",
+    "pk": 8,
+    "fields": {
+      "enrolled_at": "2026-05-18 12:10:20.992679",
+      "course": 6,
+      "student": 5
+    }
+  },
+  {
+    "model": "assessments.quiz",
+    "pk": 1,
+    "fields": {
+      "title": "worm",
+      "description": "doing research about worm",
+      "module": 1,
+      "quiz_type": "multiple_choice"
+    }
+  },
+  {
+    "model": "assessments.quiz",
+    "pk": 2,
+    "fields": {
+      "title": "ff",
+      "description": "ee",
+      "module": 1,
+      "quiz_type": "multiple_choice"
+    }
+  },
+  {
+    "model": "assessments.quiz",
+    "pk": 3,
+    "fields": {
+      "title": "code 'Hello world' from c++",
+      "description": "ddfdf",
+      "module": 1,
+      "quiz_type": "multiple_choice"
+    }
+  },
+  {
+    "model": "assessments.quiz",
+    "pk": 4,
+    "fields": {
+      "title": "do the things that you want",
+      "description": "fffd he ha haa",
+      "module": 1,
+      "quiz_type": "essay"
+    }
+  },
+  {
+    "model": "assessments.assignment",
+    "pk": 1,
+    "fields": {
+      "title": "tiktokto",
+      "description": "jdkdk",
+      "due_date": "2026-10-10 00:00:00",
+      "course": 1
+    }
+  },
+  {
+    "model": "interactions.discussion",
+    "pk": 1,
+    "fields": {
+      "title": "hellp",
+      "body": "hellp",
+      "created_at": "2026-05-06 08:21:17.260185",
+      "course": 1,
+      "user": 5
+    }
+  },
+  {
+    "model": "interactions.comment",
+    "pk": 1,
+    "fields": {
+      "body": "really good",
+      "created_at": "2026-05-06 08:27:41.575964",
+      "user": 5,
+      "discussion": 1
+    }
+  }
+]

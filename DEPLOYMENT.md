@@ -15,6 +15,9 @@ DB_SSL_REQUIRE=True
 REQUIRE_DATABASE_URL=True
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=admin@gmail.com
+DJANGO_SUPERUSER_PASSWORD=change-this-admin-password
 ```
 
 `DATABASE_URL` should point to your hosted PostgreSQL database. If it is not set,
@@ -55,7 +58,7 @@ password in the admin before using it on a public site.
 ## Start command
 
 ```bash
-gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000}
+python manage.py migrate && python manage.py createsu && gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000}
 ```
 
 The explicit bind matters on hosts that provide the web port through the

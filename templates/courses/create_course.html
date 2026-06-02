@@ -1,18 +1,161 @@
 {% extends 'base.html' %}
 {% block title %}Create Course - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="card-title">Create Course</h3>
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Create Course</button>
-                </form>
-            </div>
+<div class="course-builder">
+    <div class="builder-hero">
+        <div>
+            <span><i class="fas fa-chalkboard-user me-2"></i>Instructor Studio</span>
+            <h1>Create Course</h1>
+            <p>Set up the course, add a first module, and upload the first lesson from one workspace.</p>
         </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Dashboard
+        </a>
     </div>
+
+    <form method="post" enctype="multipart/form-data" class="builder-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors or module_form.non_field_errors or lesson_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+                {{ module_form.non_field_errors }}
+                {{ lesson_form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="builder-grid">
+            <div class="builder-main">
+                <section class="builder-panel">
+                    <div class="builder-panel__heading">
+                        <span>Step 1</span>
+                        <h2>Course Details</h2>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Course Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="invalid-feedback d-block">{{ form.title.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}<div class="invalid-feedback d-block">{{ form.category.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.price.id_for_label }}" class="form-label">Price</label>
+                            {{ form.price }}
+                            <div class="form-text">Use 0 for a free course.</div>
+                            {% if form.price.errors %}<div class="invalid-feedback d-block">{{ form.price.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="{{ form.thumbnail.id_for_label }}" class="form-label">Course Thumbnail</label>
+                        {{ form.thumbnail }}
+                        {% if form.thumbnail.errors %}<div class="invalid-feedback d-block">{{ form.thumbnail.errors }}</div>{% endif %}
+                    </div>
+                </section>
+
+                <section class="builder-panel">
+                    <div class="builder-panel__heading">
+                        <span>Step 2</span>
+                        <h2>First Module</h2>
+                        <p>Optional, but useful if you want the course to launch with content.</p>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ module_form.title.id_for_label }}" class="form-label">Module Title</label>
+                            {{ module_form.title }}
+                            {% if module_form.title.errors %}<div class="invalid-feedback d-block">{{ module_form.title.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ module_form.order.id_for_label }}" class="form-label">Module Order</label>
+                            {{ module_form.order }}
+                            {% if module_form.order.errors %}<div class="invalid-feedback d-block">{{ module_form.order.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="builder-panel">
+                    <div class="builder-panel__heading">
+                        <span>Step 3</span>
+                        <h2>First Lesson</h2>
+                        <p>Optional lesson content, video, and PDF attachment for the module above.</p>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ lesson_form.title.id_for_label }}" class="form-label">Lesson Title</label>
+                            {{ lesson_form.title }}
+                            {% if lesson_form.title.errors %}<div class="invalid-feedback d-block">{{ lesson_form.title.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ lesson_form.order.id_for_label }}" class="form-label">Lesson Order</label>
+                            {{ lesson_form.order }}
+                            {% if lesson_form.order.errors %}<div class="invalid-feedback d-block">{{ lesson_form.order.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="{{ lesson_form.content.id_for_label }}" class="form-label">Lesson Notes</label>
+                        {{ lesson_form.content }}
+                        {% if lesson_form.content.errors %}<div class="invalid-feedback d-block">{{ lesson_form.content.errors }}</div>{% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="builder-sidebar">
+                <section class="builder-panel builder-panel--dark">
+                    <div class="builder-panel__heading">
+                        <span>Resources</span>
+                        <h2>Lesson Media</h2>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ lesson_form.video_url.id_for_label }}" class="form-label">Video URL</label>
+                        {{ lesson_form.video_url }}
+                        {% if lesson_form.video_url.errors %}<div class="invalid-feedback d-block">{{ lesson_form.video_url.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ lesson_form.video_file.id_for_label }}" class="form-label">Video File</label>
+                        {{ lesson_form.video_file }}
+                        {% if lesson_form.video_file.errors %}<div class="invalid-feedback d-block">{{ lesson_form.video_file.errors }}</div>{% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ lesson_form.pdf_attachment.id_for_label }}" class="form-label">PDF Attachment</label>
+                        {{ lesson_form.pdf_attachment }}
+                        {% if lesson_form.pdf_attachment.errors %}<div class="invalid-feedback d-block">{{ lesson_form.pdf_attachment.errors }}</div>{% endif %}
+                    </div>
+                </section>
+
+                <section class="builder-help">
+                    <i class="fas fa-circle-info"></i>
+                    <div>
+                        <strong>How this works</strong>
+                        <p>Create only a course, or include a module and first lesson now. You can add more modules and lessons later.</p>
+                    </div>
+                </section>
+
+                <div class="builder-actions">
+                    <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Course
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </form>
 </div>
 {% endblock %}

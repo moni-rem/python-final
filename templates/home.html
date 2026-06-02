@@ -1,124 +1,91 @@
 {% extends 'base.html' %}
-{% block title %}Welcome - E-Learning Platform{% endblock %}
-{% block body_class %}page-home{% endblock %}
+{% load static %}
+{% block title %}E-Learn - Learn Skills Online{% endblock %}
+{% block body_class %}page-home academy-home{% endblock %}
 {% block content_wrapper_class %}home-page{% endblock %}
 {% block content %}
-<section class="home-hero">
-    <div class="home-hero__media" aria-hidden="true"></div>
-    <div class="container home-hero__content">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-7">
-                <span class="hero-kicker"><i class="fas fa-bolt me-2"></i>Online learning that keeps moving</span>
-                <h1>Build practical skills with courses, quizzes, and guided progress.</h1>
-                <p class="hero-copy">Explore instructor-led learning paths, track what you finish, join discussions, and earn certificates from one focused workspace.</p>
-                <div class="hero-actions">
-                    <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-search me-2"></i>Browse Courses
-                    </a>
+<section class="academy-hero">
+    <div class="container">
+        <div class="academy-hero__grid">
+            <div class="academy-hero__content">
+                <span class="academy-eyebrow">Online Course Management System</span>
+                <h1>Build skills with courses that fit your pace.</h1>
+                <p>Explore lessons, quizzes, assignments, discussions, progress tracking, and certificates in one focused learning platform.</p>
+                <form class="academy-search" action="{% url 'course_list' %}" method="get">
+                    <label for="academy-course-search" class="visually-hidden">Search courses</label>
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input id="academy-course-search" type="search" name="q" placeholder="Search courses, topics, or instructors">
+                    <button type="submit">Search</button>
+                </form>
+                <div class="academy-actions">
+                    <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg">Browse Courses</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
-                            <i class="fas fa-chart-line me-2"></i>Open Dashboard
-                        </a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-dark btn-lg">Dashboard</a>
                     {% else %}
-                        <a href="{% url 'register' %}" class="btn btn-light btn-lg">
-                            <i class="fas fa-user-plus me-2"></i>Create Account
-                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-dark btn-lg">Join Free</a>
                     {% endif %}
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div class="hero-panel">
-                    <div class="hero-panel__image">
-                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="Students collaborating around laptops">
-                    </div>
-                    <div class="hero-panel__body">
-                        <div>
-                            <span class="mini-label">Current focus</span>
-                            <strong>Featured learning paths</strong>
-                        </div>
-                        <div class="hero-progress">
-                            <span class="hero-progress__bar"></span>
-                        </div>
-                    </div>
+            <div class="academy-hero__visual">
+                <img src="{% static 'images/image.png' %}" alt="Smiling student holding a notebook">
+                <div class="academy-floating-card">
+                    <span>Learning Hub</span>
+                    <strong>{{ featured_courses|length }} courses</strong>
+                    <small>{{ categories|length }} subject areas available</small>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="home-stats">
+<section class="academy-strip" aria-label="Learning features">
     <div class="container">
-        <div class="stats-grid">
-            <div>
-                <i class="fas fa-users"></i>
-                <strong>10,000+</strong>
-                <span>Active learners</span>
-            </div>
-            <div>
-                <i class="fas fa-book-open"></i>
-                <strong>{{ featured_courses|length }}+</strong>
-                <span>Fresh courses</span>
-            </div>
-            <div>
-                <i class="fas fa-award"></i>
-                <strong>50,000+</strong>
-                <span>Certificates issued</span>
-            </div>
-            <div>
-                <i class="fas fa-star"></i>
-                <strong>4.8/5</strong>
-                <span>Learner rating</span>
-            </div>
+        <div class="academy-strip__grid">
+            <div><strong>01</strong><span>Enroll in courses</span></div>
+            <div><strong>02</strong><span>Watch lessons</span></div>
+            <div><strong>03</strong><span>Practice quizzes</span></div>
+            <div><strong>04</strong><span>Track progress</span></div>
         </div>
     </div>
 </section>
 
-<section class="home-section">
+<section class="academy-section">
     <div class="container">
-        <div class="section-heading">
+        <div class="academy-heading">
             <div>
-                <span class="section-kicker">Featured Learning Paths</span>
-                <h2>Courses worth opening first</h2>
-                <p>New and practical courses from instructors across the platform.</p>
+                <span class="academy-eyebrow">Featured Courses</span>
+                <h2>Start learning today</h2>
             </div>
-            <a href="{% url 'course_list' %}" class="btn btn-outline-primary">
-                View All<i class="fas fa-arrow-right ms-2"></i>
-            </a>
+            <a href="{% url 'course_list' %}">View all <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
-
         <div class="row g-4">
             {% for course in featured_courses %}
                 <div class="col-md-6 col-xl-4">
-                    <article class="course-card">
-                        <a href="{% url 'course_detail' course.pk %}" class="course-card__media">
+                    <article class="academy-course-card">
+                        <a href="{% url 'course_detail' course.pk %}" class="academy-course-card__media">
                             {% if course.thumbnail %}
                                 <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
                             {% else %}
-                                <div class="course-card__placeholder">
-                                    <i class="fas fa-chalkboard-teacher"></i>
-                                </div>
+                                <div><i class="fas fa-graduation-cap"></i></div>
                             {% endif %}
-                            <span>{% if course.category %}{{ course.category.name }}{% else %}General{% endif %}</span>
                         </a>
-                        <div class="course-card__body">
-                            <div class="course-meta">
-                                <small><i class="fas fa-user-tie me-1"></i>{{ course.instructor.get_full_name|default:course.instructor.username }}</small>
+                        <div class="academy-course-card__body">
+                            <span>{% if course.category %}{{ course.category.name }}{% else %}General{% endif %}</span>
+                            <h3><a href="{% url 'course_detail' course.pk %}">{{ course.title }}</a></h3>
+                            <p>{{ course.description|truncatewords:18 }}</p>
+                            <div>
+                                <small>{{ course.instructor.get_full_name|default:course.instructor.username }}</small>
                                 <strong>{% if course.price == 0 %}Free{% else %}${{ course.price }}{% endif %}</strong>
                             </div>
-                            <h3>{{ course.title }}</h3>
-                            <p>{{ course.description|truncatewords:22 }}</p>
-                            <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary w-100">
-                                View Course<i class="fas fa-arrow-right ms-2"></i>
-                            </a>
                         </div>
                     </article>
                 </div>
             {% empty %}
                 <div class="col-12">
-                    <div class="empty-state">
+                    <div class="academy-empty">
                         <i class="fas fa-book-open"></i>
-                        <h3>No featured courses yet</h3>
-                        <p>Courses added by instructors will appear here.</p>
+                        <h3>No courses yet</h3>
+                        <p>Instructor courses will appear here when they are created.</p>
                     </div>
                 </div>
             {% endfor %}
@@ -126,27 +93,23 @@
     </div>
 </section>
 
-<section class="home-section home-section--muted">
+<section class="academy-section academy-section--soft">
     <div class="container">
-        <div class="section-heading section-heading--center">
+        <div class="academy-heading academy-heading--center">
             <div>
-                <span class="section-kicker">Explore Topics</span>
-                <h2>Browse by category</h2>
-                <p>Find the area that matches your next goal.</p>
+                <span class="academy-eyebrow">Subjects</span>
+                <h2>Explore by category</h2>
             </div>
         </div>
-        <div class="category-grid">
+        <div class="academy-category-grid">
             {% for category in categories %}
-                <a href="{% url 'course_list' %}?category={{ category.pk }}" class="category-tile">
-                    <span><i class="fas fa-folder-open"></i></span>
-                    <div>
-                        <h3>{{ category.name }}</h3>
-                        <p>{{ category.description|truncatewords:18|default:"Explore courses in this topic." }}</p>
-                    </div>
+                <a href="{% url 'course_list' %}?category={{ category.pk }}" class="academy-category">
+                    <h3>{{ category.name }}</h3>
+                    <p>{{ category.description|truncatewords:14|default:"Explore courses in this subject." }}</p>
                     <i class="fas fa-arrow-right"></i>
                 </a>
             {% empty %}
-                <div class="empty-state">
+                <div class="academy-empty">
                     <i class="fas fa-folder"></i>
                     <h3>No categories yet</h3>
                     <p>Categories will be added soon.</p>
@@ -156,16 +119,15 @@
     </div>
 </section>
 
-<section class="home-section">
+<section class="academy-section">
     <div class="container">
-        <div class="learning-strip">
+        <div class="academy-cta">
             <div>
-                <span class="section-kicker">Start Learning</span>
-                <h2>Ready to move your skills forward?</h2>
-                <p>Open the catalog, pick a course, and continue from your dashboard whenever you come back.</p>
+                <span class="academy-eyebrow">Ready to continue?</span>
+                <h2>Your next lesson is one click away.</h2>
             </div>
             <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'register' %}{% endif %}" class="btn btn-light btn-lg">
-                <i class="fas fa-rocket me-2"></i>{% if user.is_authenticated %}Go to Dashboard{% else %}Get Started{% endif %}
+                {% if user.is_authenticated %}Open Dashboard{% else %}Create Account{% endif %}
             </a>
         </div>
     </div>

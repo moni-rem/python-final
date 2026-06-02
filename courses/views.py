@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
+from django.db import transaction
 
 from .models import Category, Course, Module, Lesson, Enrollment
-from .forms import CourseForm, ModuleForm, LessonForm
+from .forms import CourseBuilderLessonForm, CourseBuilderModuleForm, CourseForm, ModuleForm, LessonForm
 from accounts.utils import instructor_required
 from accounts.permissions import IsInstructorOrReadOnly
 from interactions.models import UserProgress
@@ -20,17 +21,32 @@ def home(request):
 
 
 def course_list(request):
+    search_query = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '').strip()
     courses = (
         Course.objects.select_related('category', 'instructor')
         .annotate(
             module_count=Count('modules', distinct=True),
             enrollment_count=Count('enrollments', distinct=True),
         )
-        .order_by('-created_at')
     )
+    if search_query:
+        courses = courses.filter(
+            Q(title__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(category__name__icontains=search_query)
+            | Q(instructor__username__icontains=search_query)
+            | Q(instructor__first_name__icontains=search_query)
+            | Q(instructor__last_name__icontains=search_query)
+        )
+    if category_id.isdigit():
+        courses = courses.filter(category_id=category_id)
+    courses = courses.order_by('-created_at')
     return render(request, 'courses/course_list.html', {
         'courses': courses,
         'module_count': Module.objects.count(),
+        'search_query': search_query,
+        'selected_category': category_id,
     })
 
 
@@ -88,16 +104,59 @@ def module_detail(request, pk):
 def create_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES)
-        if form.is_valid():
-            course = form.save(commit=False)
-            course.instructor = request.user
-            course.save()
+        module_form = CourseBuilderModuleForm(request.POST, prefix='module')
+        lesson_form = CourseBuilderLessonForm(request.POST, request.FILES, prefix='lesson')
+
+        forms_are_valid = form.is_valid() and module_form.is_valid() and lesson_form.is_valid()
+        if forms_are_valid:
+            module_title = module_form.cleaned_data.get('title')
+            lesson_data = lesson_form.cleaned_data
+            has_lesson_content = any([
+                lesson_data.get('title'),
+                lesson_data.get('content'),
+                lesson_data.get('video_url'),
+                lesson_data.get('video_file'),
+                lesson_data.get('pdf_attachment'),
+            ])
+
+            if has_lesson_content and not module_title:
+                module_form.add_error('title', 'Add a module title before uploading a lesson.')
+                forms_are_valid = False
+            if has_lesson_content and not lesson_data.get('title'):
+                lesson_form.add_error('title', 'Add a lesson title before uploading lesson content.')
+                forms_are_valid = False
+
+        if forms_are_valid:
+            with transaction.atomic():
+                course = form.save(commit=False)
+                course.instructor = request.user
+                course.save()
+
+                module = None
+                if module_form.cleaned_data.get('title'):
+                    module = module_form.save(commit=False)
+                    module.course = course
+                    module.order = module.order or 0
+                    module.save()
+
+                if module and lesson_form.cleaned_data.get('title'):
+                    lesson = lesson_form.save(commit=False)
+                    lesson.module = module
+                    lesson.order = lesson.order or 0
+                    lesson.save()
+
             messages.success(request, 'Course created successfully.')
             return redirect('course_detail', pk=course.pk)
     else:
         form = CourseForm()
+        module_form = CourseBuilderModuleForm(prefix='module')
+        lesson_form = CourseBuilderLessonForm(prefix='lesson')
 
-    return render(request, 'courses/create_course.html', {'form': form})
+    return render(request, 'courses/create_course.html', {
+        'form': form,
+        'module_form': module_form,
+        'lesson_form': lesson_form,
+    })
 
 
 @login_required

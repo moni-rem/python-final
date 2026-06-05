@@ -14,7 +14,7 @@ from .models import Discussion, Comment, Certificate, UserProgress
 from .utils import sync_course_completion
 from assessments.models import QuizAttempt
 from courses.models import Course, Enrollment, Lesson
-from accounts.utils import instructor_required
+from accounts.utils import instructor_required, is_instructor_user
 
 
 def discussion_list(request):
@@ -24,10 +24,12 @@ def discussion_list(request):
 
 def discussion_detail(request, pk):
     discussion = get_object_or_404(Discussion, pk=pk)
-    comments = discussion.comments.select_related('user').all()
+    comments = discussion.comments.filter(parent__isnull=True).select_related('user').prefetch_related('replies__user')
+    can_reply = request.user.is_authenticated and is_instructor_user(request.user)
     return render(request, 'interactions/discussion_detail.html', {
         'discussion': discussion,
         'comments': comments,
+        'can_reply': can_reply,
     })
 
 
@@ -54,9 +56,22 @@ def add_comment(request, pk):
     discussion = get_object_or_404(Discussion, pk=pk)
     if request.method == 'POST':
         body = request.POST.get('body', '').strip()
+        parent_id = request.POST.get('parent_id')
+        parent_comment = None
+        if parent_id:
+            parent_comment = discussion.comments.filter(pk=parent_id).first()
+
         if body:
-            Comment.objects.create(discussion=discussion, user=request.user, body=body)
-            messages.success(request, 'Your comment has been posted.')
+            if parent_comment and not is_instructor_user(request.user):
+                messages.error(request, 'Only instructors and admins can post replies.')
+            else:
+                Comment.objects.create(
+                    discussion=discussion,
+                    user=request.user,
+                    body=body,
+                    parent=parent_comment,
+                )
+                messages.success(request, 'Your comment has been posted.')
         return redirect('discussion_detail', pk=pk)
     return redirect('discussion_detail', pk=pk)
 

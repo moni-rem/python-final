@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Grade Submission - E-Learning Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                    <div>
+                        <h1 class="h3 mb-1">Review Submission</h1>
+                        <p class="text-muted mb-0">{{ submission.assignment.title }} • {{ submission.assignment.course.title }}</p>
+                        <p class="text-muted mb-0">Student: {{ submission.student.username }} • Submitted {{ submission.submitted_at|date:'M d, Y H:i' }}</p>
+                    </div>
+                    <a href="{% url 'assignment_submissions' %}" class="btn btn-outline-secondary">Back to Submissions</a>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="mb-2">Submission Content</h5>
+                    {% if submission.text_submission %}
+                        <div class="border rounded-3 p-3 mb-3 bg-light">
+                            <p class="mb-0">{{ submission.text_submission }}</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary">No written response was submitted.</div>
+                    {% endif %}
+
+                    {% if submission.file %}
+                        <div class="mb-3">
+                            <h6 class="mb-2">Uploaded File</h6>
+                            <a href="{{ submission.file.url }}" target="_blank" class="btn btn-outline-primary">Download File</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card border-0 bg-light p-4 mb-4">
+                    <h5 class="mb-3">Grade & Feedback</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_grade" class="form-label">Grade</label>
+                            {{ form.grade }}
+                            {% if form.grade.errors %}
+                                <div class="invalid-feedback d-block">{{ form.grade.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_feedback" class="form-label">Feedback</label>
+                            {{ form.feedback }}
+                            {% if form.feedback.errors %}
+                                <div class="invalid-feedback d-block">{{ form.feedback.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Grade</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

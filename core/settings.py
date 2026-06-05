@@ -264,7 +264,8 @@ STORAGES = {
 }
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', BASE_DIR / 'media'))
+SERVE_MEDIA_FILES = env_bool('SERVE_MEDIA_FILES', True)
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 

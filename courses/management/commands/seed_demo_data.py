@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 'category_description': 'Explore data analysis, reporting, and dashboards.',
                 'title': 'Data Analysis Essentials',
                 'description': 'Get comfortable cleaning data, asking useful questions, and presenting insights clearly.',
-                'price': Decimal('19.00'),
+                'price': Decimal('0.00'),
                 'modules': [
                     ('Data Thinking', ['Understanding datasets', 'Asking better questions']),
                     ('Analysis Practice', ['Cleaning records', 'Summarizing results']),

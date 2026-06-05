@@ -29,9 +29,15 @@ class Comment(models.Model):
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     body = models.TextField()
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['created_at']
+
     def __str__(self):
+        if self.parent:
+            return f"Reply by {self.user.username} on comment {self.parent.pk}"
         return f"Comment by {self.user.username} on {self.discussion.title}"
 
 class Certificate(models.Model):

@@ -1,18 +1,79 @@
 {% extends 'base.html' %}
 {% block title %}Create Assignment - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h3 class="card-title">Create Assignment</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Create Assignment</button>
-                </form>
-            </div>
+<div class="course-builder">
+    <div class="builder-hero">
+        <div>
+            <span><i class="fas fa-file-circle-plus me-2"></i>Instructor Studio</span>
+            <h1>Create Assignment</h1>
+            <p>Set up a new assignment with a course, description, and due date. Students will submit work from the assignment page.</p>
         </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Dashboard
+        </a>
     </div>
+
+    <form method="post" class="builder-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="builder-grid">
+            <div class="builder-main">
+                <section class="builder-panel">
+                    <div class="builder-panel__heading">
+                        <span>Step 1</span>
+                        <h2>Assignment Details</h2>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.course.id_for_label }}" class="form-label">Course</label>
+                        {{ form.course }}
+                        {% if form.course.errors %}<div class="invalid-feedback d-block">{{ form.course.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Assignment Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="invalid-feedback d-block">{{ form.title.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}<div class="invalid-feedback d-block">{{ form.due_date.errors }}</div>{% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="builder-sidebar">
+                <section class="builder-panel builder-panel--dark">
+                    <div class="builder-panel__heading">
+                        <span>Need help?</span>
+                        <h2>Assignment Tips</h2>
+                    </div>
+                    <p>Give students a clear title and detailed instructions, then set a due date so submissions stay on schedule.</p>
+                    <p class="mb-0">Assignments can include text answers or file uploads from the student submission page.</p>
+                </section>
+
+                <div class="builder-actions">
+                    <a href="{% url 'assignment_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-circle-plus me-2"></i>Create Assignment
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </form>
 </div>
 {% endblock %}

@@ -17,10 +17,14 @@ class UserProgressSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
     discussion = serializers.StringRelatedField(read_only=True)
+    replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'discussion', 'user', 'body', 'created_at']
+        fields = ['id', 'discussion', 'user', 'body', 'parent', 'replies', 'created_at']
+
+    def get_replies(self, obj):
+        return CommentSerializer(obj.replies.select_related('user').all(), many=True).data
 
 
 class DiscussionSerializer(serializers.ModelSerializer):

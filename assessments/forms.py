@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Quiz, QuizAttempt, Assignment
+from .models import Quiz, QuizAttempt, Assignment, AssignmentSubmission
 
 
 class QuizForm(forms.ModelForm):
@@ -19,6 +19,41 @@ class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
         fields = ['course', 'title', 'description', 'due_date']
+        widgets = {
+            'course': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Example: Final project submission',
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Provide assignment instructions, submission requirements, and grading guidance.',
+            }),
+            'due_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+        }
+
+
+class AssignmentSubmissionGradeForm(forms.ModelForm):
+    class Meta:
+        model = AssignmentSubmission
+        fields = ['grade', 'feedback']
+        widgets = {
+            'grade': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'placeholder': 'Enter grade',
+            }),
+            'feedback': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Write feedback for the student',
+            }),
+        }
 
 
 class QuizAttemptGradeForm(forms.ModelForm):

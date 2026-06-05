@@ -75,7 +75,7 @@
                             <p>{{ course.description|truncatewords:18 }}</p>
                             <div>
                                 <small>{{ course.instructor.get_full_name|default:course.instructor.username }}</small>
-                                <strong>{% if course.price == 0 %}Free{% else %}${{ course.price }}{% endif %}</strong>
+                                <strong>Free</strong>
                             </div>
                         </div>
                     </article>

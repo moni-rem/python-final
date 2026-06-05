@@ -102,6 +102,80 @@
                             </div>
                         </div>
 
+                        <div id="qcm-builder" class="mb-5">
+                            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                                <div>
+                                    <h4 class="fw-bold mb-1">
+                                        <i class="fas fa-list-check me-2 text-primary"></i>QCM Questions
+                                    </h4>
+                                    <p class="text-muted mb-0">Add multiple choice questions and select the correct answer for each one.</p>
+                                </div>
+                                <div class="qcm-count-control">
+                                    <label for="qcm-question-count" class="form-label fw-bold mb-1">Questions</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="qcm-question-count"
+                                        name="qcm_question_count"
+                                        min="1"
+                                        max="50"
+                                        value="{{ qcm_question_count }}">
+                                </div>
+                            </div>
+
+                            {% if qcm_errors %}
+                                <div class="alert alert-danger">
+                                    <strong>Please fix the QCM questions:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        {% for error in qcm_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+
+                            <div id="qcm-question-list">
+                            {% for question in qcm_questions %}
+                                <div class="qcm-question border rounded-3 p-4 mb-4">
+                                    <label for="question-{{ forloop.counter0 }}-text" class="form-label fw-bold">
+                                        Question {{ forloop.counter }}
+                                    </label>
+                                    <textarea
+                                        class="form-control mb-3"
+                                        id="question-{{ forloop.counter0 }}-text"
+                                        name="question_{{ forloop.counter0 }}_text"
+                                        rows="2"
+                                        placeholder="Write the question">{{ question.text }}</textarea>
+
+                                    <div class="row g-3">
+                                        {% for choice in question.choices %}
+                                            <div class="col-12">
+                                                <div class="input-group">
+                                                    <span class="input-group-text">
+                                                        <input
+                                                            class="form-check-input mt-0"
+                                                            type="radio"
+                                                            name="question_{{ forloop.parentloop.counter0 }}_correct"
+                                                            value="{{ forloop.counter0 }}"
+                                                            aria-label="Mark choice {{ forloop.counter }} as correct"
+                                                            {% if choice.is_correct %}checked{% endif %}>
+                                                    </span>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control"
+                                                        name="question_{{ forloop.parentloop.counter0 }}_choice_{{ forloop.counter0 }}"
+                                                        value="{{ choice.text }}"
+                                                        placeholder="Choice {{ forloop.counter }}">
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-text mt-2">Use the radio button to mark the correct answer.</div>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
@@ -126,13 +200,13 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #667eea;
+    border-color: #000000;
     box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 
 .input-group-text {
     border: 1px solid #dee2e6;
-    color: #667eea;
+    color: #000000;
     background-color: #f8f9fa;
 }
 
@@ -149,7 +223,101 @@
 }
 
 .bg-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; */
+    background: black !important;
+}
+
+.qcm-question {
+    background-color: #f8f9fa;
+}
+
+.qcm-count-control {
+    width: 8rem;
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const quizType = document.getElementById('{{ form.quiz_type.id_for_label }}');
+    const qcmBuilder = document.getElementById('qcm-builder');
+    const qcmQuestionCount = document.getElementById('qcm-question-count');
+    const qcmQuestionList = document.getElementById('qcm-question-list');
+
+    function toggleQcmBuilder() {
+        const showQcm = quizType.value === 'multiple_choice' || quizType.value === 'mixed';
+        qcmBuilder.classList.toggle('d-none', !showQcm);
+    }
+
+    function createChoice(questionIndex, choiceIndex) {
+        const choiceWrapper = document.createElement('div');
+        choiceWrapper.className = 'col-12';
+        choiceWrapper.innerHTML = `
+            <div class="input-group">
+                <span class="input-group-text">
+                    <input
+                        class="form-check-input mt-0"
+                        type="radio"
+                        name="question_${questionIndex}_correct"
+                        value="${choiceIndex}"
+                        aria-label="Mark choice ${choiceIndex + 1} as correct">
+                </span>
+                <input
+                    type="text"
+                    class="form-control"
+                    name="question_${questionIndex}_choice_${choiceIndex}"
+                    placeholder="Choice ${choiceIndex + 1}">
+            </div>
+        `;
+        return choiceWrapper;
+    }
+
+    function createQuestion(questionIndex) {
+        const question = document.createElement('div');
+        question.className = 'qcm-question border rounded-3 p-4 mb-4';
+
+        const choices = document.createElement('div');
+        choices.className = 'row g-3';
+        for (let choiceIndex = 0; choiceIndex < 4; choiceIndex += 1) {
+            choices.appendChild(createChoice(questionIndex, choiceIndex));
+        }
+
+        question.innerHTML = `
+            <label for="question-${questionIndex}-text" class="form-label fw-bold">
+                Question ${questionIndex + 1}
+            </label>
+            <textarea
+                class="form-control mb-3"
+                id="question-${questionIndex}-text"
+                name="question_${questionIndex}_text"
+                rows="2"
+                placeholder="Write the question"></textarea>
+        `;
+        question.appendChild(choices);
+        question.insertAdjacentHTML('beforeend', '<div class="form-text mt-2">Use the radio button to mark the correct answer.</div>');
+        return question;
+    }
+
+    function syncQuestionCount() {
+        const requestedCount = Math.min(Math.max(parseInt(qcmQuestionCount.value || '1', 10), 1), 50);
+        qcmQuestionCount.value = requestedCount;
+
+        while (qcmQuestionList.children.length < requestedCount) {
+            qcmQuestionList.appendChild(createQuestion(qcmQuestionList.children.length));
+        }
+
+        while (qcmQuestionList.children.length > requestedCount) {
+            qcmQuestionList.removeChild(qcmQuestionList.lastElementChild);
+        }
+    }
+
+    if (quizType && qcmBuilder) {
+        quizType.addEventListener('change', toggleQcmBuilder);
+        toggleQcmBuilder();
+    }
+
+    if (qcmQuestionCount && qcmQuestionList) {
+        qcmQuestionCount.addEventListener('input', syncQuestionCount);
+        syncQuestionCount();
+    }
+});
+</script>
 {% endblock %}

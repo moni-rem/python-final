@@ -13,3 +13,4 @@ urlpatterns = [
     path('certificates/<int:pk>/download/', views.download_certificate, name='download_certificate'),
     path('instructor/progress/', views.monitor_student_progress, name='monitor_student_progress'),
 ]
+3

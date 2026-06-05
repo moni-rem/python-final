@@ -6,7 +6,7 @@ from .models import Category, Course, Module, Lesson
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'category', 'price', 'thumbnail']
+        fields = ['title', 'description', 'category', 'thumbnail']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,11 +20,6 @@ class CourseForm(forms.ModelForm):
             'placeholder': 'Describe what students will learn in this course.',
         })
         self.fields['category'].widget.attrs.update({'class': 'form-select'})
-        self.fields['price'].widget.attrs.update({
-            'class': 'form-control',
-            'min': 0,
-            'step': '0.01',
-        })
         self.fields['thumbnail'].widget.attrs.update({'class': 'form-control'})
 
 

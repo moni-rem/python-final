@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.db import transaction
+from decimal import Decimal
 
 from .models import Category, Course, Module, Lesson, Enrollment
 from .forms import CourseBuilderLessonForm, CourseBuilderModuleForm, CourseForm, ModuleForm, LessonForm
@@ -41,12 +42,14 @@ def course_list(request):
         )
     if category_id.isdigit():
         courses = courses.filter(category_id=category_id)
-    courses = courses.order_by('-created_at')
+    courses = courses.order_by('title')
+    categories = Category.objects.order_by('name')
     return render(request, 'courses/course_list.html', {
         'courses': courses,
         'module_count': Module.objects.count(),
         'search_query': search_query,
         'selected_category': category_id,
+        'categories': categories,
     })
 
 
@@ -130,6 +133,7 @@ def create_course(request):
             with transaction.atomic():
                 course = form.save(commit=False)
                 course.instructor = request.user
+                course.price = Decimal('0.00')
                 course.save()
 
                 module = None
@@ -173,16 +177,44 @@ def api_create_course_form(request):
 def create_module(request):
     if request.method == 'POST':
         form = ModuleForm(request.POST)
-        form.fields['course'].queryset = Course.objects.filter(instructor=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Module created successfully.')
-            return redirect('course_list')
-    else:
-        form = ModuleForm()
+        lesson_form = CourseBuilderLessonForm(request.POST, request.FILES, prefix='lesson')
         form.fields['course'].queryset = Course.objects.filter(instructor=request.user)
 
-    return render(request, 'courses/create_module.html', {'form': form})
+        if form.is_valid() and lesson_form.is_valid():
+            lesson_data = lesson_form.cleaned_data
+            has_lesson_content = any([
+                lesson_data.get('title'),
+                lesson_data.get('content'),
+                lesson_data.get('video_url'),
+                lesson_data.get('video_file'),
+                lesson_data.get('pdf_attachment'),
+            ])
+
+            if has_lesson_content and not lesson_data.get('title'):
+                lesson_form.add_error('title', 'Add a lesson title before uploading lesson content.')
+
+            if form.is_valid() and (not has_lesson_content or lesson_data.get('title')):
+                module = form.save(commit=False)
+                module.order = module.order or 0
+                module.save()
+
+                if has_lesson_content:
+                    lesson = lesson_form.save(commit=False)
+                    lesson.module = module
+                    lesson.order = lesson.order or 0
+                    lesson.save()
+
+                messages.success(request, 'Module created successfully.')
+                return redirect('course_list')
+    else:
+        form = ModuleForm()
+        lesson_form = CourseBuilderLessonForm(prefix='lesson')
+        form.fields['course'].queryset = Course.objects.filter(instructor=request.user)
+
+    return render(request, 'courses/create_module.html', {
+        'form': form,
+        'lesson_form': lesson_form,
+    })
 
 
 @login_required
@@ -218,7 +250,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsInstructorOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(instructor=self.request.user)
+        serializer.save(instructor=self.request.user, price=Decimal('0.00'))
 
 
 class ModuleViewSet(viewsets.ModelViewSet):

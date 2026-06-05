@@ -26,7 +26,7 @@
 <section class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
         <form method="get" id="moduleFilterForm" class="row g-3 align-items-end">
-            <div class="col-lg-9">
+            <div class="col-lg-5">
                 <label for="moduleFilter" class="form-label fw-semibold">
                     <i class="fas fa-layer-group me-2 text-primary"></i>Select Module
                 </label>
@@ -39,9 +39,15 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="col-lg-4">
+                <label for="quizSearch" class="form-label fw-semibold">
+                    <i class="fas fa-search me-2 text-primary"></i>Search Quizzes
+                </label>
+                <input type="search" class="form-control form-control-lg" id="quizSearch" name="search" value="{{ search_query|default_if_none:'' }}" placeholder="Search titles, descriptions, or modules" />
+            </div>
             <div class="col-lg-3">
                 <button type="submit" class="btn btn-primary btn-lg w-100">
-                    <i class="fas fa-filter me-2"></i>Load
+                    <i class="fas fa-filter me-2"></i>Search
                 </button>
             </div>
         </form>
@@ -60,6 +66,18 @@
                 <div class="text-md-end">
                     <div class="h3 fw-bold mb-0">{{ quizzes|length }}</div>
                     <small class="text-muted">Quizzes found</small>
+                </div>
+            </div>
+        </div>
+    </section>
+{% elif search_query %}
+    <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                <div>
+                    <span class="badge text-bg-primary mb-2">Search Results</span>
+                    <h2 class="h4 fw-bold mb-1">{{ quizzes|length }} quizzes found</h2>
+                    <p class="text-muted mb-0">Matching "{{ search_query }}" across quiz titles, descriptions, and modules.</p>
                 </div>
             </div>
         </div>
@@ -107,7 +125,7 @@
                     <div class="card-body text-center p-5">
                         <i class="fas fa-layer-group display-5 text-primary mb-3"></i>
                         <h2 class="h4 fw-bold mb-2">Select a module</h2>
-                        <p class="text-muted mb-0">Use the dropdown above to load quizzes for a specific module.</p>
+                        <p class="text-muted mb-0">Select a module to view its quizzes.</p>
                     </div>
                 </div>
             </div>

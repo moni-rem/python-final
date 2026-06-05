@@ -13,6 +13,8 @@ CORS_ALLOW_ALL_ORIGINS=False
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB_NAME
 DB_SSL_REQUIRE=True
 REQUIRE_DATABASE_URL=True
+SERVE_MEDIA_FILES=True
+MEDIA_ROOT=/opt/render/project/src/media
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
 DJANGO_SUPERUSER_USERNAME=admin
@@ -24,6 +26,16 @@ DJANGO_SUPERUSER_PASSWORD=change-this-admin-password
 the app can also use `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT`.
 Set `REQUIRE_DATABASE_URL=True` on production if you want the app to fail clearly
 when the hosted database is missing instead of falling back to local SQLite.
+
+`SERVE_MEDIA_FILES=True` lets the deployed Django app serve uploaded course
+images, videos, and PDFs from `/media/`. This is fine for demos and class
+projects. For a real production deployment, use persistent storage such as S3,
+Cloudinary, or your host's mounted disk; otherwise uploaded files can disappear
+when the service is redeployed or restarted.
+
+If your hosting provider supports persistent disks, mount the disk to a folder
+and set `MEDIA_ROOT` to that exact folder. On Render, for example, create a
+persistent disk and use its mount path as `MEDIA_ROOT`.
 
 For Render, Railway, and Vercel-style deployments, the app now also reads
 `RENDER_EXTERNAL_HOSTNAME`, `RAILWAY_PUBLIC_DOMAIN`, and `VERCEL_URL` into

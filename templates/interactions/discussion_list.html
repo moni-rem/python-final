@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Discussions - E-Learning Platform{% endblock %}
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-8">
+<div class="row justify-content-center mb-4">
+    <div class="col-md-8 text-center text-md-start">
         <h1>Discussion Threads</h1>
         <p>Collaborate with students and instructors.</p>
     </div>
-    <div class="col-md-4 text-end">
+    <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
         {% if user.is_authenticated %}
             <a class="btn btn-success" href="{% url 'create_discussion' %}">Start New Discussion</a>
         {% else %}

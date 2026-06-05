@@ -10,5 +10,7 @@ urlpatterns = [
     path('quizzes/attempts/<int:pk>/grade/', views.grade_quiz_attempt, name='grade_quiz_attempt'),
     path('assignments/', views.assignment_list, name='assignment_list'),
     path('assignments/create/', views.create_assignment, name='create_assignment'),
+    path('assignments/submissions/', views.assignment_submissions, name='assignment_submissions'),
+    path('assignments/submissions/<int:pk>/', views.grade_assignment_submission, name='grade_assignment_submission'),
     path('assignments/<int:pk>/submit/', views.assignment_submit, name='assignment_submit'),
 ]

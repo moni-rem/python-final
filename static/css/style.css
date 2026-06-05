@@ -1837,15 +1837,13 @@ body.page-home-marketplace .site-main {
 
 .market-course__media img {
     display: block;
-    filter: grayscale(100%);
     height: 100%;
     object-fit: cover;
-    transition: filter 0.18s ease, transform 0.18s ease;
+    transition: transform 0.18s ease;
     width: 100%;
 }
 
 .market-course:hover .market-course__media img {
-    filter: grayscale(0);
     transform: scale(1.03);
 }
 
@@ -2595,14 +2593,9 @@ body.academy-home {
 
 .academy-course-card__media img {
     display: block;
-    filter: grayscale(100%);
     height: 100%;
     object-fit: cover;
     width: 100%;
-}
-
-.academy-course-card:hover .academy-course-card__media img {
-    filter: grayscale(0);
 }
 
 .academy-course-card__media div {
@@ -2786,4 +2779,13 @@ body.academy-home {
     .academy-strip__grid div:last-child {
         border-bottom: 0;
     }
+}
+
+/* Keep course thumbnails in their uploaded colors. */
+#course-grid .card img,
+.market-course__media img,
+.academy-course-card__media img,
+.course-card__media img,
+.hero-panel__image img {
+    filter: none !important;
 }

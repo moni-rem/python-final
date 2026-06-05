@@ -1,13 +1,94 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 
 from .models import Quiz, Question, Choice, QuizAttempt, Assignment, AssignmentSubmission
-from .forms import QuizForm, QuizAttemptGradeForm, AssignmentForm
-from accounts.utils import instructor_required
+from .forms import QuizForm, QuizAttemptGradeForm, AssignmentForm, AssignmentSubmissionGradeForm
+from accounts.utils import instructor_required, is_instructor_user
 from accounts.permissions import IsInstructorOrReadOnly
 from courses.models import Course, Module
 from interactions.utils import sync_course_completion
+
+
+DEFAULT_QCM_QUESTION_COUNT = 1
+MAX_QCM_QUESTION_COUNT = 50
+QCM_CHOICE_COUNT = 4
+
+
+def _get_qcm_question_count(post_data=None):
+    if not post_data:
+        return DEFAULT_QCM_QUESTION_COUNT
+
+    raw_count = post_data.get('qcm_question_count')
+    if raw_count:
+        try:
+            return min(max(int(raw_count), 1), MAX_QCM_QUESTION_COUNT)
+        except ValueError:
+            return DEFAULT_QCM_QUESTION_COUNT
+
+    submitted_indexes = []
+    for key in post_data.keys():
+        if not key.startswith('question_'):
+            continue
+        parts = key.split('_')
+        if len(parts) >= 3 and parts[1].isdigit():
+            submitted_indexes.append(int(parts[1]))
+
+    if submitted_indexes:
+        return min(max(submitted_indexes) + 1, MAX_QCM_QUESTION_COUNT)
+    return DEFAULT_QCM_QUESTION_COUNT
+
+
+def _build_qcm_form_data(post_data=None):
+    question_count = _get_qcm_question_count(post_data)
+    questions = []
+    for question_index in range(question_count):
+        choices = []
+        for choice_index in range(QCM_CHOICE_COUNT):
+            choices.append({
+                'text': post_data.get(f'question_{question_index}_choice_{choice_index}', '') if post_data else '',
+                'is_correct': post_data.get(f'question_{question_index}_correct') == str(choice_index) if post_data else False,
+            })
+        questions.append({
+            'text': post_data.get(f'question_{question_index}_text', '') if post_data else '',
+            'choices': choices,
+        })
+    return questions
+
+
+def _validate_qcm_form_data(qcm_questions):
+    errors = []
+    valid_questions = []
+
+    for index, question in enumerate(qcm_questions, start=1):
+        question_text = question['text'].strip()
+        choice_texts = [choice['text'].strip() for choice in question['choices']]
+        has_content = bool(question_text or any(choice_texts))
+
+        if not has_content:
+            continue
+
+        if not question_text:
+            errors.append(f'Question {index} needs question text.')
+
+        filled_choices = [choice_text for choice_text in choice_texts if choice_text]
+        if len(filled_choices) < 2:
+            errors.append(f'Question {index} needs at least two choices.')
+
+        correct_choice = next((choice for choice in question['choices'] if choice['is_correct']), None)
+        if correct_choice is None:
+            errors.append(f'Question {index} needs one correct answer.')
+        elif not correct_choice['text'].strip():
+            errors.append(f'The correct answer for question {index} must have choice text.')
+
+        if question_text and len(filled_choices) >= 2 and correct_choice and correct_choice['text'].strip():
+            valid_questions.append(question)
+
+    if not valid_questions:
+        errors.append('Add at least one QCM question with choices and a correct answer.')
+
+    return valid_questions, errors
 
 
 @login_required
@@ -17,17 +98,29 @@ def quiz_list(request):
         'order',
     )
     selected_module = None
-    quizzes = Quiz.objects.none()
+    search_query = request.GET.get('search', '').strip()
+    quizzes = Quiz.objects.select_related('module', 'module__course').all()
 
     module_id = request.GET.get('module')
     if module_id:
         selected_module = get_object_or_404(modules, pk=module_id)
-        quizzes = Quiz.objects.select_related('module', 'module__course').filter(module=selected_module)
+        quizzes = quizzes.filter(module=selected_module)
+    elif not search_query:
+        quizzes = Quiz.objects.none()
+
+    if search_query:
+        quizzes = quizzes.filter(
+            Q(title__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(module__title__icontains=search_query)
+            | Q(module__course__title__icontains=search_query)
+        )
 
     return render(request, 'assessments/quiz_list.html', {
         'modules': modules,
         'selected_module': selected_module,
         'quizzes': quizzes,
+        'search_query': search_query,
     })
 
 
@@ -95,20 +188,94 @@ def assignment_list(request):
 
 
 @login_required
+def assignment_submissions(request):
+    if not is_instructor_user(request.user):
+        messages.error(request, 'Only instructors and administrators can access assignment submissions.')
+        return redirect('assignment_list')
+
+    submissions = AssignmentSubmission.objects.select_related('assignment', 'student', 'assignment__course').all()
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'admin'):
+        submissions = submissions.filter(assignment__course__instructor=request.user)
+
+    return render(request, 'assessments/assignment_submissions.html', {
+        'submissions': submissions,
+    })
+
+
+@login_required
+def grade_assignment_submission(request, pk):
+    if not is_instructor_user(request.user):
+        messages.error(request, 'Only instructors and administrators can grade assignment submissions.')
+        return redirect('assignment_list')
+
+    submissions = AssignmentSubmission.objects.select_related('assignment', 'student', 'assignment__course')
+    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'admin'):
+        submissions = submissions.filter(assignment__course__instructor=request.user)
+
+    submission = get_object_or_404(submissions, pk=pk)
+
+    if request.method == 'POST':
+        form = AssignmentSubmissionGradeForm(request.POST, instance=submission)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Submission updated successfully.')
+            return redirect('assignment_submissions')
+    else:
+        form = AssignmentSubmissionGradeForm(instance=submission)
+
+    return render(request, 'assessments/grade_assignment_submission.html', {
+        'submission': submission,
+        'form': form,
+    })
+
+
+@login_required
 @instructor_required
 def create_quiz(request):
+    qcm_questions = _build_qcm_form_data()
+    qcm_question_count = len(qcm_questions)
+    qcm_errors = []
+
     if request.method == 'POST':
         form = QuizForm(request.POST)
         form.fields['module'].queryset = Module.objects.filter(course__instructor=request.user)
+        qcm_questions = _build_qcm_form_data(request.POST)
+        qcm_question_count = len(qcm_questions)
+
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Quiz created successfully.')
-            return redirect('quiz_list')
+            quiz_type = form.cleaned_data['quiz_type']
+            valid_questions = []
+
+            if quiz_type in ['multiple_choice', 'mixed']:
+                valid_questions, qcm_errors = _validate_qcm_form_data(qcm_questions)
+
+            if not qcm_errors:
+                quiz = form.save()
+                for question_data in valid_questions:
+                    question = Question.objects.create(
+                        quiz=quiz,
+                        text=question_data['text'].strip(),
+                    )
+                    for choice_data in question_data['choices']:
+                        choice_text = choice_data['text'].strip()
+                        if choice_text:
+                            Choice.objects.create(
+                                question=question,
+                                text=choice_text,
+                                is_correct=choice_data['is_correct'],
+                            )
+                messages.success(request, 'Quiz created successfully.')
+                return redirect('quiz_list')
     else:
         form = QuizForm()
         form.fields['module'].queryset = Module.objects.filter(course__instructor=request.user)
 
-    return render(request, 'assessments/create_quiz.html', {'form': form})
+    return render(request, 'assessments/create_quiz.html', {
+        'form': form,
+        'qcm_questions': qcm_questions,
+        'qcm_question_count': qcm_question_count,
+        'qcm_errors': qcm_errors,
+    })
 
 
 @login_required

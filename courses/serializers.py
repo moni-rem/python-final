@@ -39,6 +39,7 @@ class CourseSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     instructor = serializers.StringRelatedField(read_only=True)
     modules = ModuleSerializer(many=True, read_only=True)
+    price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Course

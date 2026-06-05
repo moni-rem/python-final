@@ -195,9 +195,89 @@
                         <span><i class="fas fa-award text-danger me-2"></i>Certificates</span>
                         <i class="fas fa-arrow-right text-muted"></i>
                     </a>
+                    <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0" type="button" data-bs-toggle="collapse" data-bs-target="#userRoleManagementSection" aria-expanded="false" aria-controls="userRoleManagementSection">
+                        <span><i class="fas fa-user-shield text-primary me-2"></i>Manage User Roles</span>
+                        <i class="fas fa-arrow-down text-muted"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
+<div class="row g-4 mb-4 mt-4">
+    <div class="col-12">
+        <div class="collapse" id="userRoleManagementSection">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-start">
+                    <div>
+                        <h5 class="fw-bold mb-1">User Role Management</h5>
+                        <p class="text-muted mb-0">View all users and their assigned role. Filter by role or update a user's role directly.</p>
+                    </div>
+                    <form method="get" class="d-flex gap-2 align-items-center">
+                        <label for="roleFilter" class="mb-0 fw-semibold text-muted">Filter:</label>
+                        <select id="roleFilter" name="role" class="form-select form-select-sm">
+                            <option value="">All roles</option>
+                            {% for value, label in role_choices %}
+                                <option value="{{ value }}" {% if selected_role == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Apply</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Username</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admin_user in users %}
+                                <tr>
+                                    <td>{{ admin_user.username }}</td>
+                                    <td>{{ admin_user.email }}</td>
+                                    <td>{{ admin_user.get_role_display }}</td>
+                                    <td>
+                                        {% if admin_user.is_superuser %}
+                                            <span class="badge bg-dark">Superuser</span>
+                                        {% elif admin_user.is_staff %}
+                                            <span class="badge bg-secondary">Staff</span>
+                                        {% elif admin_user.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" class="d-flex gap-2 align-items-center mb-0">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user_id" value="{{ admin_user.id }}" />
+                                            <select name="role" class="form-select form-select-sm" style="min-width: 160px;">
+                                                {% for value, label in role_choices %}
+                                                    <option value="{{ value }}" {% if admin_user.role == value %}selected{% endif %}>{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No users found for this role.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>{% endblock %}

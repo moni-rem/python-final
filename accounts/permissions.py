@@ -13,3 +13,7 @@ class IsInstructorOrReadOnly(BasePermission):
 class IsInstructor(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and is_instructor_user(request.user))
+
+
+
+

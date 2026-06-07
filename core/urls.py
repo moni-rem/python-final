@@ -96,7 +96,8 @@ if settings.DEBUG:
 
     urlpatterns += staticfiles_urlpatterns()
 
-if settings.SERVE_MEDIA_FILES:
+# Only serve media files locally (not from S3)
+if settings.SERVE_MEDIA_FILES and not getattr(settings, 'USE_S3', False):
     urlpatterns += [
         re_path(
             r'^media/(?P<path>.*)$',

@@ -87,7 +87,6 @@ def progress_dashboard(request):
         'total_lessons': 0,
         'overall_percent': 0,
     }
-
     for enrollment in enrollments:
         course = enrollment.course
         completion = sync_course_completion(request.user, course)
@@ -95,22 +94,18 @@ def progress_dashboard(request):
         lesson_total = completion['lesson_total']
         completed_lessons = completion['completed_lessons']
         lesson_percent = round((completed_lessons / lesson_total) * 100) if lesson_total else 0
-
         quizzes_total = completion['quizzes_total']
         quiz_attempts = QuizAttempt.objects.filter(student=request.user, quiz__module__course=course)
         quizzes_completed = completion['quizzes_completed']
         quiz_percent = round((quizzes_completed / quizzes_total) * 100) if quizzes_total else 0
         average_quiz_score = quiz_attempts.exclude(score__isnull=True).aggregate(Avg('score'))['score__avg']
-
         assignments_total = completion['assignments_total']
         assignments_submitted = completion['assignments_submitted']
         assignment_percent = round((assignments_submitted / assignments_total) * 100) if assignments_total else 0
-
         total_items = completion['total_items']
         completed_items = completion['completed_items']
         overall_percent = round((completed_items / total_items) * 100) if total_items else 0
         is_completed = completion['is_completed']
-
         progress_cards.append({
             'course': course,
             'progress': progress,
@@ -265,28 +260,20 @@ def monitor_student_progress(request):
 
 from rest_framework import viewsets, permissions
 from .serializers import UserProgressSerializer, DiscussionSerializer, CommentSerializer, CertificateSerializer
-
-
 class UserProgressViewSet(viewsets.ModelViewSet):
     queryset = UserProgress.objects.select_related('student', 'course').prefetch_related('completed_lessons').all()
     serializer_class = UserProgressSerializer
     permission_classes = [permissions.IsAuthenticated]
-
     def get_queryset(self):
         if self.request.user.is_staff or self.request.user.is_superuser:
             return self.queryset
         return self.queryset.filter(student=self.request.user)
-
-
 class DiscussionViewSet(viewsets.ModelViewSet):
     queryset = Discussion.objects.select_related('course', 'user').all()
     serializer_class = DiscussionSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.select_related('discussion', 'user').all()
     serializer_class = CommentSerializer

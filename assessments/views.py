@@ -39,7 +39,6 @@ def _get_qcm_question_count(post_data=None):
         return min(max(submitted_indexes) + 1, MAX_QCM_QUESTION_COUNT)
     return DEFAULT_QCM_QUESTION_COUNT
 
-
 def _build_qcm_form_data(post_data=None):
     question_count = _get_qcm_question_count(post_data)
     questions = []

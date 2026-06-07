@@ -93,7 +93,6 @@ def admin_dashboard(request):
         role = request.POST.get('role')
         valid_roles = dict(CustomUser.ROLE_CHOICES)
         target_user = CustomUser.objects.filter(id=user_id).first()
-
         if not target_user:
             messages.error(request, 'User not found.')
         elif role not in valid_roles:
@@ -103,13 +102,11 @@ def admin_dashboard(request):
             target_user.save(update_fields=['role'])
             messages.success(request, f'{target_user.username} is now {valid_roles[role]}.')
         return redirect('admin_dashboard')
-
     role_filter = request.GET.get('role')
     valid_roles = dict(CustomUser.ROLE_CHOICES)
     users = CustomUser.objects.order_by('username')
     if role_filter in valid_roles:
         users = users.filter(role=role_filter)
-
     return render(request, 'accounts/admin_dashboard.html', {
         'user_count': CustomUser.objects.count(),
         'course_count': Course.objects.count(),

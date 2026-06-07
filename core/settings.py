@@ -257,7 +257,9 @@ STATICFILES_FINDERS = [
 ]
 
 if WHITENOISE_INSTALLED:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    # StaticFilesStorage avoids a collectstatic compression race on some hosts
+    # (e.g. Render + Python 3.14) that breaks admin CSS post-processing.
+    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 

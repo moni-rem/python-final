@@ -256,12 +256,8 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-if WHITENOISE_INSTALLED:
-    # StaticFilesStorage avoids a collectstatic compression race on some hosts
-    # (e.g. Render + Python 3.14) that breaks admin CSS post-processing.
-    STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
-else:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# Use Django's default collector; WhiteNoise middleware serves STATIC_ROOT.
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 STORAGES = {
     'default': {
@@ -272,12 +268,16 @@ STORAGES = {
     },
 }
 
+if WHITENOISE_INSTALLED and not DEBUG:
+    # Serve from STATICFILES_DIRS when collectstatic did not populate STATIC_ROOT.
+    WHITENOISE_USE_FINDERS = True
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', BASE_DIR / 'media'))
 SERVE_MEDIA_FILES = env_bool('SERVE_MEDIA_FILES', True)
 
 # AWS S3 Configuration (for production)
-USE_S3 = env_bool('USE_S3', not DEBUG)
+USE_S3 = env_bool('USE_S3', False) and bool(os.environ.get('AWS_STORAGE_BUCKET_NAME'))
 
 if USE_S3:
     # AWS Settings

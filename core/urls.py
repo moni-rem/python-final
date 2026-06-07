@@ -91,10 +91,15 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
-if settings.DEBUG:
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.contrib.staticfiles.views import serve as staticfiles_serve
 
-    urlpatterns += staticfiles_urlpatterns()
+urlpatterns += [
+    re_path(
+        r'^static/(?P<path>.*)$',
+        staticfiles_serve,
+        kwargs={'insecure': True},
+    ),
+]
 
 # Only serve media files locally (not from S3)
 if settings.SERVE_MEDIA_FILES and not getattr(settings, 'USE_S3', False):

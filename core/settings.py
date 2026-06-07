@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
-from importlib.util import find_spec
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -42,7 +41,8 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env_bool('DEBUG', True)
+# Render sets RENDER in the environment; default DEBUG off there, on locally.
+DEBUG = env_bool('DEBUG', os.environ.get('RENDER') is None)
 
 ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', '127.0.0.1,localhost')
 
@@ -137,11 +137,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-WHITENOISE_INSTALLED = find_spec('whitenoise') is not None
-
-if WHITENOISE_INSTALLED:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'core.urls'
 
@@ -267,10 +262,6 @@ STORAGES = {
         'BACKEND': STATICFILES_STORAGE,
     },
 }
-
-if WHITENOISE_INSTALLED and not DEBUG:
-    # Serve from STATICFILES_DIRS when collectstatic did not populate STATIC_ROOT.
-    WHITENOISE_USE_FINDERS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', BASE_DIR / 'media'))

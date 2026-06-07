@@ -255,6 +255,8 @@ staticfiles_storage = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 if not DEBUG and find_spec('whitenoise'):
     staticfiles_storage = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+STATICFILES_STORAGE = staticfiles_storage
+
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',

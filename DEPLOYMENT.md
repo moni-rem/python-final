@@ -56,6 +56,12 @@ python manage.py collectstatic --noinput
 python manage.py migrate
 ```
 
+**If the deployed site loses its styling**, the usual cause is that `collectstatic`
+was not run. With `DEBUG=False`, Django does not serve `/static/` files by itself;
+WhiteNoise serves them from the `staticfiles/` folder created by `collectstatic`.
+That folder is gitignored, so every deploy must run the command above in the
+build step or start command.
+
 If the home page shows "No featured courses yet", the hosted database is empty.
 Create courses from the admin/instructor pages, import your local data, or seed
 starter content:
@@ -70,7 +76,7 @@ password in the admin before using it on a public site.
 ## Start command
 
 ```bash
-python manage.py migrate && python manage.py createsu && gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000}
+python manage.py migrate && python manage.py createsu && python manage.py collectstatic --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000}
 ```
 
 The explicit bind matters on hosts that provide the web port through the

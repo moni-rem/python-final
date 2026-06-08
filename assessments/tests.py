@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from courses.models import Course, Enrollment, Module
+from courses.models import Category, Course, Enrollment, Module
 from interactions.models import Certificate
-from .models import Assignment, Choice, Question, Quiz, QuizAttempt
+from .models import Assignment, AssignmentSubmission, Choice, Question, Quiz, QuizAttempt
 
 
 class QuizDetailTests(TestCase):
@@ -40,6 +40,7 @@ class QuizDetailTests(TestCase):
             title='Other Quiz',
             quiz_type='multiple_choice',
         )
+        Enrollment.objects.create(student=self.student, course=self.course)
         self.client.login(username='student', password='pass12345')
 
         default_response = self.client.get(reverse('quiz_list'))
@@ -52,12 +53,88 @@ class QuizDetailTests(TestCase):
         self.assertContains(selected_response, module_quiz.title)
         self.assertNotContains(selected_response, 'Other Quiz')
 
+        hidden_response = self.client.get(reverse('quiz_list'), {'module': other_module.pk})
+        self.assertEqual(hidden_response.status_code, 404)
+
+    def test_quiz_list_search_only_shows_enrolled_course_quizzes(self):
+        enrolled_quiz = Quiz.objects.create(
+            module=self.module,
+            title='Shared Quiz',
+            quiz_type='multiple_choice',
+        )
+        other_course = Course.objects.create(
+            title='Other Course',
+            description='A separate course.',
+            instructor=self.instructor,
+        )
+        other_module = Module.objects.create(course=other_course, title='Other Module', order=1)
+        Quiz.objects.create(
+            module=other_module,
+            title='Shared Other Quiz',
+            quiz_type='multiple_choice',
+        )
+        Enrollment.objects.create(student=self.student, course=self.course)
+        self.client.login(username='student', password='pass12345')
+
+        response = self.client.get(reverse('quiz_list'), {'search': 'Shared'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, enrolled_quiz.title)
+        self.assertNotContains(response, 'Shared Other Quiz')
+
+    def test_quiz_list_can_filter_by_enrolled_course_category(self):
+        category = Category.objects.create(name='Programming')
+        other_category = Category.objects.create(name='Design')
+        self.course.category = category
+        self.course.save()
+        visible_quiz = Quiz.objects.create(
+            module=self.module,
+            title='Programming Quiz',
+            quiz_type='multiple_choice',
+        )
+        other_course = Course.objects.create(
+            title='Design Course',
+            description='A separate course.',
+            category=other_category,
+            instructor=self.instructor,
+        )
+        other_module = Module.objects.create(course=other_course, title='Design Module', order=1)
+        Quiz.objects.create(
+            module=other_module,
+            title='Design Quiz',
+            quiz_type='multiple_choice',
+        )
+        Enrollment.objects.create(student=self.student, course=self.course)
+        self.client.login(username='student', password='pass12345')
+
+        response = self.client.get(reverse('quiz_list'), {'category': category.pk})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, visible_quiz.title)
+        self.assertNotContains(response, 'Design Quiz')
+
+        hidden_response = self.client.get(reverse('quiz_list'), {'category': other_category.pk})
+        self.assertEqual(hidden_response.status_code, 404)
+
+    def test_student_cannot_open_unenrolled_quiz_detail(self):
+        quiz = Quiz.objects.create(
+            module=self.module,
+            title='Hidden Quiz',
+            quiz_type='multiple_choice',
+        )
+        self.client.login(username='student', password='pass12345')
+
+        response = self.client.get(reverse('quiz_detail', args=[quiz.pk]))
+
+        self.assertEqual(response.status_code, 404)
+
     def test_essay_quiz_submission_shows_pending_review_not_zero_score(self):
         quiz = Quiz.objects.create(
             module=self.module,
             title='Essay Quiz',
             quiz_type='essay',
         )
+        Enrollment.objects.create(student=self.student, course=self.course)
         self.client.login(username='student', password='pass12345')
 
         response = self.client.post(reverse('quiz_detail', args=[quiz.pk]), {
@@ -78,6 +155,7 @@ class QuizDetailTests(TestCase):
         )
         question = Question.objects.create(quiz=quiz, text='What framework is this?')
         correct_choice = Choice.objects.create(question=question, text='Django', is_correct=True)
+        Enrollment.objects.create(student=self.student, course=self.course)
         self.client.login(username='student', password='pass12345')
 
         response = self.client.post(reverse('quiz_detail', args=[quiz.pk]), {
@@ -168,6 +246,87 @@ class QuizDetailTests(TestCase):
 
         self.assertRedirects(response, reverse('assignment_list'))
         self.assertTrue(Certificate.objects.filter(student=self.student, course=self.course).exists())
+
+    def test_assignment_list_only_shows_enrolled_course_assignments(self):
+        enrolled_assignment = Assignment.objects.create(
+            course=self.course,
+            title='Visible Assignment',
+            description='Submit this task.',
+            due_date='2026-06-01 12:00:00Z',
+        )
+        other_course = Course.objects.create(
+            title='Other Course',
+            description='A separate course.',
+            instructor=self.instructor,
+        )
+        Assignment.objects.create(
+            course=other_course,
+            title='Hidden Assignment',
+            description='Not enrolled.',
+            due_date='2026-06-01 12:00:00Z',
+        )
+        Enrollment.objects.create(student=self.student, course=self.course)
+        self.client.login(username='student', password='pass12345')
+
+        response = self.client.get(reverse('assignment_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, enrolled_assignment.title)
+        self.assertNotContains(response, 'Hidden Assignment')
+
+    def test_assignment_list_can_filter_by_enrolled_course_category(self):
+        category = Category.objects.create(name='Programming')
+        other_category = Category.objects.create(name='Design')
+        self.course.category = category
+        self.course.save()
+        visible_assignment = Assignment.objects.create(
+            course=self.course,
+            title='Programming Assignment',
+            description='Submit this task.',
+            due_date='2026-06-01 12:00:00Z',
+        )
+        other_course = Course.objects.create(
+            title='Design Course',
+            description='A separate course.',
+            category=other_category,
+            instructor=self.instructor,
+        )
+        Assignment.objects.create(
+            course=other_course,
+            title='Design Assignment',
+            description='Not enrolled.',
+            due_date='2026-06-01 12:00:00Z',
+        )
+        Enrollment.objects.create(student=self.student, course=self.course)
+        self.client.login(username='student', password='pass12345')
+
+        response = self.client.get(reverse('assignment_list'), {'category': category.pk})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, visible_assignment.title)
+        self.assertNotContains(response, 'Design Assignment')
+
+        hidden_response = self.client.get(reverse('assignment_list'), {'category': other_category.pk})
+        self.assertEqual(hidden_response.status_code, 404)
+
+    def test_student_cannot_submit_unenrolled_assignment(self):
+        assignment = Assignment.objects.create(
+            course=self.course,
+            title='Hidden Assignment',
+            description='Not enrolled.',
+            due_date='2026-06-01 12:00:00Z',
+        )
+        self.client.login(username='student', password='pass12345')
+
+        response = self.client.post(reverse('assignment_submit', args=[assignment.pk]), {
+            'text_submission': 'Trying anyway.',
+        })
+
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(AssignmentSubmission.objects.filter(
+            student=self.student,
+            assignment=assignment,
+        ).exists())
 
     def test_instructor_can_review_and_grade_quiz_attempt(self):
         quiz = Quiz.objects.create(

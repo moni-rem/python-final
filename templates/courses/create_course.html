@@ -6,7 +6,7 @@
         <div>
             <span><i class="fas fa-chalkboard-user me-2"></i>Instructor Studio</span>
             <h1>Create Course</h1>
-            <p>Set up the course, add a first module, and upload the first lesson from one workspace.</p>
+            <p>Set up the course, add modules, and upload the first lesson from one workspace.</p>
         </div>
         <a href="{% url 'dashboard' %}" class="btn btn-light">
             <i class="fas fa-arrow-left me-2"></i>Dashboard
@@ -16,10 +16,10 @@
     <form method="post" enctype="multipart/form-data" class="builder-form">
         {% csrf_token %}
 
-        {% if form.non_field_errors or module_form.non_field_errors or lesson_form.non_field_errors %}
+        {% if form.non_field_errors or module_formset.non_form_errors or lesson_form.non_field_errors %}
             <div class="alert alert-danger">
                 {{ form.non_field_errors }}
-                {{ module_form.non_field_errors }}
+                {{ module_formset.non_form_errors }}
                 {{ lesson_form.non_field_errors }}
             </div>
         {% endif %}
@@ -62,21 +62,29 @@
                 <section class="builder-panel">
                     <div class="builder-panel__heading">
                         <span>Step 2</span>
-                        <h2>First Module</h2>
-                        <p>Optional, but useful if you want the course to launch with content.</p>
+                        <h2>Modules</h2>
+                        <p>Add several modules now. Leave unused rows blank.</p>
                     </div>
 
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label for="{{ module_form.title.id_for_label }}" class="form-label">Module Title</label>
-                            {{ module_form.title }}
-                            {% if module_form.title.errors %}<div class="invalid-feedback d-block">{{ module_form.title.errors }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-4">
-                            <label for="{{ module_form.order.id_for_label }}" class="form-label">Module Order</label>
-                            {{ module_form.order }}
-                            {% if module_form.order.errors %}<div class="invalid-feedback d-block">{{ module_form.order.errors }}</div>{% endif %}
-                        </div>
+                    {{ module_formset.management_form }}
+                    <div class="module-list">
+                        {% for module_form in module_formset %}
+                            <div class="row g-3 align-items-end module-row">
+                                <div class="col-md-8">
+                                    <label for="{{ module_form.title.id_for_label }}" class="form-label">Module {{ forloop.counter }} Title</label>
+                                    {{ module_form.title }}
+                                    {% if module_form.title.errors %}<div class="invalid-feedback d-block">{{ module_form.title.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="{{ module_form.order.id_for_label }}" class="form-label">Order</label>
+                                    {{ module_form.order }}
+                                    {% if module_form.order.errors %}<div class="invalid-feedback d-block">{{ module_form.order.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-text mt-2">
+                        The optional first lesson below will be added to the first module you enter.
                     </div>
                 </section>
 

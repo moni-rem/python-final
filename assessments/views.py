@@ -2,18 +2,56 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
 
 from .models import Quiz, Question, Choice, QuizAttempt, Assignment, AssignmentSubmission
 from .forms import QuizForm, QuizAttemptGradeForm, AssignmentForm, AssignmentSubmissionGradeForm
 from accounts.utils import instructor_required, is_instructor_user
 from accounts.permissions import IsInstructorOrReadOnly
-from courses.models import Course, Module
+from courses.models import Category, Course, Enrollment, Module
 from interactions.utils import sync_course_completion
 
 
 DEFAULT_QCM_QUESTION_COUNT = 1
 MAX_QCM_QUESTION_COUNT = 50
 QCM_CHOICE_COUNT = 4
+
+
+def _visible_modules_for_user(user):
+    modules = Module.objects.select_related('course').order_by(
+        'course__title',
+        'order',
+    )
+    if is_instructor_user(user):
+        return modules
+    return modules.filter(course__enrollments__student=user).distinct()
+
+
+def _visible_quizzes_for_user(user):
+    quizzes = Quiz.objects.select_related('module', 'module__course')
+    if is_instructor_user(user):
+        return quizzes
+    return quizzes.filter(module__course__enrollments__student=user).distinct()
+
+
+def _visible_assignments_for_user(user):
+    assignments = Assignment.objects.select_related('course')
+    if is_instructor_user(user):
+        return assignments
+    return assignments.filter(course__enrollments__student=user).distinct()
+
+
+def _student_is_enrolled(user, course):
+    if is_instructor_user(user):
+        return True
+    return Enrollment.objects.filter(student=user, course=course).exists()
+
+
+def _visible_categories_for_user(user):
+    categories = Category.objects.order_by('name')
+    if is_instructor_user(user):
+        return categories.filter(courses__isnull=False).distinct()
+    return categories.filter(courses__enrollments__student=user).distinct()
 
 
 def _get_qcm_question_count(post_data=None):
@@ -92,19 +130,25 @@ def _validate_qcm_form_data(qcm_questions):
 
 @login_required
 def quiz_list(request):
-    modules = Module.objects.select_related('course').order_by(
-        'course__title',
-        'order',
-    )
+    categories = _visible_categories_for_user(request.user)
+    selected_category = None
+    category_id = request.GET.get('category')
+    modules = _visible_modules_for_user(request.user)
+    if category_id:
+        selected_category = get_object_or_404(categories, pk=category_id)
+        modules = modules.filter(course__category=selected_category)
+
     selected_module = None
     search_query = request.GET.get('search', '').strip()
-    quizzes = Quiz.objects.select_related('module', 'module__course').all()
+    quizzes = _visible_quizzes_for_user(request.user)
+    if selected_category:
+        quizzes = quizzes.filter(module__course__category=selected_category)
 
     module_id = request.GET.get('module')
     if module_id:
         selected_module = get_object_or_404(modules, pk=module_id)
         quizzes = quizzes.filter(module=selected_module)
-    elif not search_query:
+    elif not search_query and not selected_category:
         quizzes = Quiz.objects.none()
 
     if search_query:
@@ -116,6 +160,8 @@ def quiz_list(request):
         )
 
     return render(request, 'assessments/quiz_list.html', {
+        'categories': categories,
+        'selected_category': selected_category,
         'modules': modules,
         'selected_module': selected_module,
         'quizzes': quizzes,
@@ -125,7 +171,7 @@ def quiz_list(request):
 
 @login_required
 def quiz_detail(request, pk):
-    quiz = get_object_or_404(Quiz.objects.select_related('module', 'module__course'), pk=pk)
+    quiz = get_object_or_404(_visible_quizzes_for_user(request.user), pk=pk)
     questions = quiz.questions.prefetch_related('choices')
     result = None
     latest_attempt = QuizAttempt.objects.filter(student=request.user, quiz=quiz).order_by('-attempted_at').first()
@@ -182,23 +228,62 @@ def quiz_detail(request, pk):
 
 @login_required
 def assignment_list(request):
-    assignments = Assignment.objects.select_related('course').all()
-    return render(request, 'assessments/assignment_list.html', {'assignments': assignments})
+    categories = _visible_categories_for_user(request.user)
+    selected_category = None
+    category_id = request.GET.get('category')
+    assignments = _visible_assignments_for_user(request.user)
+    if category_id:
+        selected_category = get_object_or_404(categories, pk=category_id)
+        assignments = assignments.filter(course__category=selected_category)
+
+    return render(request, 'assessments/assignment_list.html', {
+        'assignments': assignments,
+        'categories': categories,
+        'selected_category': selected_category,
+    })
 
 
 @login_required
 def assignment_submissions(request):
     if not is_instructor_user(request.user):
-        messages.error(request, 'Only instructors and administrators can access assignment submissions.')
+        messages.error(
+            request,
+            'Only instructors and administrators can access assignment submissions.'
+        )
         return redirect('assignment_list')
 
-    submissions = AssignmentSubmission.objects.select_related('assignment', 'student', 'assignment__course').all()
-    if not (request.user.is_staff or request.user.is_superuser or request.user.role == 'admin'):
-        submissions = submissions.filter(assignment__course__instructor=request.user)
+    q = request.GET.get('q', '').strip()
 
-    return render(request, 'assessments/assignment_submissions.html', {
-        'submissions': submissions,
-    })
+    submissions = AssignmentSubmission.objects.select_related(
+        'assignment',
+        'student',
+        'assignment__course'
+    )
+
+    if not (
+        request.user.is_staff or
+        request.user.is_superuser or
+        request.user.role == 'admin'
+    ):
+        submissions = submissions.filter(
+            assignment__course__instructor=request.user
+        )
+
+    if q:
+        submissions = submissions.filter(
+            Q(student__username__icontains=q) |
+            Q(assignment__title__icontains=q) |
+            Q(assignment__course__title__icontains=q)
+        )
+
+    return render(
+        request,
+        'assessments/assignment_submissions.html',
+        {
+            'submissions': submissions,
+            'q': q,
+        }
+    )
 
 
 @login_required
@@ -346,7 +431,7 @@ def create_assignment(request):
 
 @login_required
 def assignment_submit(request, pk):
-    assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
+    assignment = get_object_or_404(_visible_assignments_for_user(request.user), pk=pk)
     submission = AssignmentSubmission.objects.filter(assignment=assignment, student=request.user).first()
 
     if request.method == 'POST':
@@ -390,17 +475,44 @@ class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
     permission_classes = [IsInstructorOrReadOnly]
 
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return self.queryset.none()
+        if is_instructor_user(self.request.user):
+            return self.queryset
+        return self.queryset.filter(
+            module__course__enrollments__student=self.request.user
+        ).distinct()
+
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.select_related('quiz').all()
     serializer_class = QuestionSerializer
     permission_classes = [IsInstructorOrReadOnly]
 
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return self.queryset.none()
+        if is_instructor_user(self.request.user):
+            return self.queryset
+        return self.queryset.filter(
+            quiz__module__course__enrollments__student=self.request.user
+        ).distinct()
+
 
 class ChoiceViewSet(viewsets.ModelViewSet):
     queryset = Choice.objects.select_related('question').all()
     serializer_class = ChoiceSerializer
     permission_classes = [IsInstructorOrReadOnly]
+
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return self.queryset.none()
+        if is_instructor_user(self.request.user):
+            return self.queryset
+        return self.queryset.filter(
+            question__quiz__module__course__enrollments__student=self.request.user
+        ).distinct()
 
 
 class QuizAttemptViewSet(viewsets.ModelViewSet):
@@ -409,6 +521,9 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
+        quiz = serializer.validated_data['quiz']
+        if not _student_is_enrolled(self.request.user, quiz.module.course):
+            raise PermissionDenied('You must enroll in this course before submitting its quiz.')
         attempt = serializer.save(student=self.request.user)
         sync_course_completion(self.request.user, attempt.quiz.module.course, touch_progress=True)
 
@@ -423,6 +538,15 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSerializer
     permission_classes = [IsInstructorOrReadOnly]
 
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return self.queryset.none()
+        if is_instructor_user(self.request.user):
+            return self.queryset
+        return self.queryset.filter(
+            course__enrollments__student=self.request.user
+        ).distinct()
+
 
 class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     queryset = AssignmentSubmission.objects.select_related('assignment', 'student').all()
@@ -430,6 +554,9 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
+        assignment = serializer.validated_data.get('assignment')
+        if assignment and not _student_is_enrolled(self.request.user, assignment.course):
+            raise PermissionDenied('You must enroll in this course before submitting its assignment.')
         submission = serializer.save(student=self.request.user)
         sync_course_completion(self.request.user, submission.assignment.course, touch_progress=True)
 

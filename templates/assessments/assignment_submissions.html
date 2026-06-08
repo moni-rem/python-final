@@ -1,47 +1,248 @@
 {% extends 'base.html' %}
+
 {% block title %}Assignment Submissions - E-Learning Platform{% endblock %}
+
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h1>Assignment Submissions</h1>
-        <p>Review student work for your assignments.</p>
+
+<!-- Header -->
+<div class="bg-primary text-white rounded-4 p-4 mb-4 shadow">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-2">
+                <i class="fas fa-clipboard-check me-2"></i>
+                Assignment Submissions
+            </h1>
+            <p class="mb-0 opacity-75">
+                Review and grade student assignments.
+            </p>
+        </div>
     </div>
 </div>
-<div class="row">
-    {% for submission in submissions %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body d-flex flex-column">
-                    <div class="mb-3">
-                        <span class="badge text-bg-primary mb-2">{{ submission.assignment.course.title }}</span>
-                        <h5 class="card-title mb-1">{{ submission.assignment.title }}</h5>
-                        <p class="card-text text-muted mb-0">Submitted by {{ submission.student.username }}</p>
-                        <p class="text-muted small mb-0">{{ submission.submitted_at|date:'M d, Y H:i' }}</p>
-                    </div>
 
-                    <div class="mb-3">
-                        <p class="mb-1"><strong>Grade:</strong> {% if submission.grade is not None %}{{ submission.grade }}{% else %}<span class="text-muted">Not graded</span>{% endif %}</p>
-                        {% if submission.feedback %}
-                            <p class="mb-0"><strong>Feedback:</strong> {{ submission.feedback|truncatewords:20 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div class="mt-auto">
-                        <a href="{% url 'grade_assignment_submission' submission.pk %}" class="btn btn-primary w-100">Review Submission</a>
-                    </div>
-                </div>
+<!-- Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body text-center">
+                <h2 class="fw-bold text-primary">
+                    {{ submissions|length }}
+                </h2>
+                <p class="text-muted mb-0">
+                    Total Submissions
+                </p>
             </div>
         </div>
-    {% empty %}
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-circle-info display-5 text-primary mb-3"></i>
-                    <h3 class="h4 fw-bold mb-2">No submissions yet</h3>
-                    <p class="text-muted mb-0">No student submissions are available for review yet.</p>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
+    </div>
 </div>
+
+<!-- Search -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET">
+            <div class="input-group">
+                <input
+                    type="text"
+                    name="q"
+                    class="form-control"
+                    placeholder="Search student, assignment, or course..."
+                    value="{{ request.GET.q }}"
+                >
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Submission Cards -->
+<div class="row">
+
+    {% for submission in submissions %}
+
+    <div class="col-lg-4 col-md-6 mb-4">
+
+        <div class="card border-0 shadow-sm h-100 submission-card">
+
+            <div class="card-body">
+
+                <!-- Top Section -->
+                <div class="d-flex justify-content-between align-items-start mb-3">
+
+                    <span class="badge bg-primary">
+                        {{ submission.assignment.course.title }}
+                    </span>
+
+                    {% if submission.grade %}
+                        <span class="badge bg-success">
+                            Graded
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">
+                            Pending
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <!-- Assignment -->
+                <h5 class="fw-bold mb-3">
+                    {{ submission.assignment.title }}
+                </h5>
+
+                <!-- Student -->
+                <div class="d-flex align-items-center mb-3">
+
+                    <div class="avatar-circle">
+                        {{ submission.student.username|first|upper }}
+                    </div>
+
+                    <div class="ms-3">
+                        <h6 class="mb-0">
+                            {{ submission.student.username }}
+                        </h6>
+
+                        <small class="text-muted">
+                            Student
+                        </small>
+                    </div>
+
+                </div>
+
+                <!-- Date -->
+                <p class="text-muted small">
+                    <i class="fas fa-clock me-1"></i>
+                    Submitted:
+                    {{ submission.submitted_at|date:'M d, Y H:i' }}
+                </p>
+
+                <hr>
+
+                <!-- Grade -->
+                <div class="mb-3">
+                    <strong>Grade:</strong>
+
+                    {% if submission.grade %}
+                        <span class="text-success fw-bold">
+                            {{ submission.grade }}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">
+                            Not Graded
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Feedback -->
+                {% if submission.feedback %}
+                <div class="mb-3">
+                    <strong>Feedback:</strong>
+                    <p class="small text-muted mb-0">
+                        {{ submission.feedback|truncatewords:20 }}
+                    </p>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-white border-0">
+
+                <a href="{% url 'grade_assignment_submission' submission.pk %}"
+                   class="btn btn-primary w-100">
+                    <i class="fas fa-eye me-2"></i>
+                    Review Submission
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body text-center py-5">
+
+                <i class="fas fa-folder-open display-1 text-primary mb-3"></i>
+
+                <h3 class="fw-bold">
+                    No Submissions Found
+                </h3>
+
+                <p class="text-muted">
+                    No student submissions are available for review yet.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<style>
+
+.bg-primary{
+    background: linear-gradient(
+        135deg,
+        #000000   
+    ) !important;
+}
+
+.submission-card{
+    border-radius:18px;
+    transition:all .3s ease;
+}
+
+/* .submission-card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 12px 25px rgba(0,0,0,.15)!important;
+} */
+
+.card{
+    border-radius:18px;
+}
+
+.avatar-circle{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:#000000;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.stat-card{
+    transition:.3s;
+}
+
+.stat-card:hover{
+    transform:translateY(-5px);
+}
+
+.btn{
+    border-radius:10px;
+}
+
+.badge{
+    padding:8px 12px;
+    font-size:.8rem;
+}
+
+</style>
+
 {% endblock %}

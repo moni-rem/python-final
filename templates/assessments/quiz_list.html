@@ -26,7 +26,20 @@
 <section class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
         <form method="get" id="moduleFilterForm" class="row g-3 align-items-end">
-            <div class="col-lg-5">
+            <div class="col-lg-3">
+                <label for="categoryFilter" class="form-label fw-semibold">
+                    <i class="fas fa-tags me-2 text-primary"></i>Select Category
+                </label>
+                <select class="form-select form-select-lg" id="categoryFilter" name="category" onchange="this.form.submit()">
+                    <option value="">All categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.pk }}" {% if selected_category and selected_category.pk == category.pk %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-4">
                 <label for="moduleFilter" class="form-label fw-semibold">
                     <i class="fas fa-layer-group me-2 text-primary"></i>Select Module
                 </label>
@@ -39,13 +52,13 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <label for="quizSearch" class="form-label fw-semibold">
                     <i class="fas fa-search me-2 text-primary"></i>Search Quizzes
                 </label>
                 <input type="search" class="form-control form-control-lg" id="quizSearch" name="search" value="{{ search_query|default_if_none:'' }}" placeholder="Search titles, descriptions, or modules" />
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <button type="submit" class="btn btn-primary btn-lg w-100">
                     <i class="fas fa-filter me-2"></i>Search
                 </button>
@@ -70,14 +83,22 @@
             </div>
         </div>
     </section>
-{% elif search_query %}
+{% elif search_query or selected_category %}
     <section class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
                 <div>
-                    <span class="badge text-bg-primary mb-2">Search Results</span>
+                    <span class="badge text-bg-primary mb-2">
+                        {% if selected_category %}{{ selected_category.name }}{% else %}Search Results{% endif %}
+                    </span>
                     <h2 class="h4 fw-bold mb-1">{{ quizzes|length }} quizzes found</h2>
-                    <p class="text-muted mb-0">Matching "{{ search_query }}" across quiz titles, descriptions, and modules.</p>
+                    <p class="text-muted mb-0">
+                        {% if search_query %}
+                            Matching "{{ search_query }}" across quiz titles, descriptions, and modules.
+                        {% else %}
+                            Quizzes in this category are listed below.
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -86,7 +107,7 @@
 
 <section>
     <div class="row g-4">
-        {% if selected_module %}
+        {% if selected_module or search_query or selected_category %}
             {% for quiz in quizzes %}
                 <div class="col-md-6 col-xl-4">
                     <article class="card border-0 shadow-sm h-100">
@@ -100,7 +121,7 @@
                             <h3 class="h5 fw-bold mb-2">{{ quiz.title }}</h3>
                             <p class="text-muted flex-grow-1">{{ quiz.description|default:'No description provided.'|truncatewords:24 }}</p>
                             <div class="small text-muted mb-3">
-                                <i class="fas fa-layer-group me-2 text-primary"></i>{{ quiz.module.title }}
+                                <i class="fas fa-layer-group me-2 text-primary"></i>{{ quiz.module.course.title }} - {{ quiz.module.title }}
                             </div>
                             <a class="btn btn-primary w-100 mt-auto" href="{% url 'quiz_detail' quiz.pk %}">
                                 Start Quiz<i class="fas fa-arrow-right ms-2"></i>
@@ -113,8 +134,8 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body text-center p-5">
                             <i class="fas fa-circle-info display-5 text-primary mb-3"></i>
-                            <h3 class="h4 fw-bold mb-2">No quizzes in this module</h3>
-                            <p class="text-muted mb-0">Check another module or come back after your instructor adds quizzes.</p>
+                            <h3 class="h4 fw-bold mb-2">No quizzes found</h3>
+                            <p class="text-muted mb-0">Check another module or search term, or come back after your instructor adds quizzes.</p>
                         </div>
                     </div>
                 </div>

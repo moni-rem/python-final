@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.db import transaction
+from django.forms import formset_factory
 from decimal import Decimal
 
 from .models import Category, Course, Module, Lesson, Enrollment
@@ -10,6 +11,27 @@ from .forms import CourseBuilderLessonForm, CourseBuilderModuleForm, CourseForm,
 from accounts.utils import instructor_required
 from accounts.permissions import IsInstructorOrReadOnly
 from interactions.models import UserProgress
+
+
+CourseBuilderModuleFormSet = formset_factory(
+    CourseBuilderModuleForm,
+    extra=5,
+    max_num=20,
+    validate_max=True,
+)
+
+
+def _module_forms_with_titles(module_formset):
+    return [
+        module_form
+        for module_form in module_formset
+        if module_form.cleaned_data and module_form.cleaned_data.get('title')
+    ]
+
+
+def _set_module_form_order_initials(module_formset):
+    for index, module_form in enumerate(module_formset.forms):
+        module_form.fields['order'].initial = index
 
 
 def home(request):
@@ -107,12 +129,12 @@ def module_detail(request, pk):
 def create_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES)
-        module_form = CourseBuilderModuleForm(request.POST, prefix='module')
+        module_formset = CourseBuilderModuleFormSet(request.POST, prefix='modules')
         lesson_form = CourseBuilderLessonForm(request.POST, request.FILES, prefix='lesson')
 
-        forms_are_valid = form.is_valid() and module_form.is_valid() and lesson_form.is_valid()
+        forms_are_valid = form.is_valid() and module_formset.is_valid() and lesson_form.is_valid()
         if forms_are_valid:
-            module_title = module_form.cleaned_data.get('title')
+            module_forms = _module_forms_with_titles(module_formset)
             lesson_data = lesson_form.cleaned_data
             has_lesson_content = any([
                 lesson_data.get('title'),
@@ -122,8 +144,8 @@ def create_course(request):
                 lesson_data.get('pdf_attachment'),
             ])
 
-            if has_lesson_content and not module_title:
-                module_form.add_error('title', 'Add a module title before uploading a lesson.')
+            if has_lesson_content and not module_forms:
+                module_formset.forms[0].add_error('title', 'Add a module title before uploading a lesson.')
                 forms_are_valid = False
             if has_lesson_content and not lesson_data.get('title'):
                 lesson_form.add_error('title', 'Add a lesson title before uploading lesson content.')
@@ -137,11 +159,13 @@ def create_course(request):
                 course.save()
 
                 module = None
-                if module_form.cleaned_data.get('title'):
-                    module = module_form.save(commit=False)
-                    module.course = course
-                    module.order = module.order or 0
-                    module.save()
+                for index, module_form in enumerate(_module_forms_with_titles(module_formset)):
+                    created_module = module_form.save(commit=False)
+                    created_module.course = course
+                    created_module.order = created_module.order if created_module.order is not None else index
+                    created_module.save()
+                    if module is None:
+                        module = created_module
 
                 if module and lesson_form.cleaned_data.get('title'):
                     lesson = lesson_form.save(commit=False)
@@ -153,12 +177,13 @@ def create_course(request):
             return redirect('course_detail', pk=course.pk)
     else:
         form = CourseForm()
-        module_form = CourseBuilderModuleForm(prefix='module')
+        module_formset = CourseBuilderModuleFormSet(prefix='modules')
+        _set_module_form_order_initials(module_formset)
         lesson_form = CourseBuilderLessonForm(prefix='lesson')
 
     return render(request, 'courses/create_course.html', {
         'form': form,
-        'module_form': module_form,
+        'module_formset': module_formset,
         'lesson_form': lesson_form,
     })
 
